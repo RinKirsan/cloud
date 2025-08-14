@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование пользователя - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-edit me-2"></i>Редактирование пользователя: {{ user.username }}
+                </h5>
+                <div class="alert alert-info mt-2 mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Примечание:</strong> Для смены пароля пользователя используйте действие "Сброс пароля" в списке пользователей.
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.username.id }}" class="form-label">Имя пользователя</label>
+                                {{ form.username(class="form-control") }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.email.id }}" class="form-label">Email</label>
+                                {{ form.email(class="form-control", type="email") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.storage_limit.id }}" class="form-label">Лимит хранилища (МБ)</label>
+                                {{ form.storage_limit(class="form-control", min="1") }}
+                                <div class="form-text">
+                                    Минимум: 1 МБ, максимум: 100,000 МБ (100 ГБ)
+                                </div>
+                                {% if form.storage_limit.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.storage_limit.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.is_admin(class="form-check-input") }}
+                                    <label class="form-check-label" for="{{ form.is_admin.id }}">
+                                        Администратор
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Администраторы могут управлять пользователями и настройками системы
+                                </div>
+                            </div>
+                            
+                            <div class="form-check">
+                                {{ form.is_active(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.is_active.id }}">
+                                    Активен
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Неактивные пользователи не могут входить в систему
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Информация о пользователе -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-info-circle me-2"></i>Информация о пользователе
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="text-muted">ID:</small><br>
+                                    <strong>{{ user.id }}</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">Дата регистрации:</small><br>
+                                    <strong>{{ user.created_at.strftime('%d.%m.%Y') }}</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">Последний вход:</small><br>
+                                    <strong>
+                                        {% if user.last_login %}
+                                            {{ user.last_login.strftime('%d.%m.%Y %H:%M') }}
+                                        {% else %}
+                                            Никогда
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">Использовано хранилища:</small><br>
+                                    <strong>{{ user.get_storage_usage_mb() }} МБ</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

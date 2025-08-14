@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки системы - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Настройки системы
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.database_type.id }}" class="form-label">Тип базы данных</label>
+                        {{ form.database_type(class="form-select") }}
+                        <div class="form-text">
+                            Выберите тип базы данных для хранения информации о пользователях и файлах
+                        </div>
+                        {% if form.database_type.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.database_type.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.max_file_size.id }}" class="form-label">Максимальный размер файла (МБ)</label>
+                        {{ form.max_file_size(class="form-control", min="1") }}
+                        <div class="form-text">
+                            Максимальный размер файла, который могут загружать пользователи. Минимум: 1 МБ, максимум: 100,000 МБ (100 ГБ)
+                        </div>
+                        {% if form.max_file_size.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.max_file_size.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                                                        <label for="{{ form.storage_limit_default.id }}" class="form-label">Лимит хранилища по умолчанию (МБ)</label>
+                                {{ form.storage_limit_default(class="form-control", min="1") }}
+                                <div class="form-text">
+                                    Лимит хранилища по умолчанию для новых пользователей. Минимум: 1 МБ, максимум: 100,000 МБ (100 ГБ)
+                                </div>
+                        {% if form.storage_limit_default.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.storage_limit_default.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Внимание:</strong> Изменение типа базы данных может потребовать миграции данных. 
+                        Убедитесь, что у вас есть резервная копия перед внесением изменений.
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Текущие настройки
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                                                    <div class="col-md-6">
+                                    <p><strong>Тип БД:</strong> {{ config.get('DATABASE_TYPE', 'sqlite') }}</p>
+                                    <p><strong>Макс. размер файла:</strong> {{ (config.get('MAX_CONTENT_LENGTH', 0) // (1024 * 1024)) }} МБ</p>
+                                    <p><strong>Лимит хранилища по умолчанию:</strong> {{ (config.get('STORAGE_LIMIT_DEFAULT', 0) // (1024 * 1024)) }} МБ</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Папка загрузок:</strong> {{ config.get('UPLOAD_FOLDER', 'uploads') }}</p>
+                                    <p><strong>Режим отладки:</strong> {{ 'Включен' if config.get('DEBUG') else 'Выключен' }}</p>
+                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

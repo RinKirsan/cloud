@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - Cloud Storage{% endblock %}
+
+{% block content %}
+<style>
+.login-card {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.1), rgba(255, 119, 200, 0.1));
+    border: 1px solid var(--cyan-glow);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+body.dark-theme .login-card {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.15), rgba(255, 119, 200, 0.15));
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo {
+    color: var(--cyan-glow);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.login-title {
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+body.dark-theme .login-title {
+    color: var(--text-dark);
+}
+
+.login-subtitle {
+    color: var(--inactive);
+    font-size: 0.95rem;
+}
+
+.input-group {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+    box-shadow: 0 4px 16px rgba(93, 230, 225, 0.3);
+    transform: translateY(-2px);
+}
+
+.input-group-text {
+    background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+    border: none;
+    color: var(--text-light);
+    padding: 12px 16px;
+}
+
+.form-control {
+    border: none;
+    padding: 12px 16px;
+    background: white;
+    color: var(--text-light);
+}
+
+body.dark-theme .form-control {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    background: white;
+}
+
+body.dark-theme .form-control:focus {
+    background: var(--bg-dark);
+}
+
+.form-check-input:checked {
+    background-color: var(--cyan-glow);
+    border-color: var(--cyan-glow);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+}
+
+.form-check-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+body.dark-theme .form-check-label {
+    color: var(--text-dark);
+}
+
+.btn-login {
+    background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+    border: none;
+    border-radius: 15px;
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(93, 230, 225, 0.3);
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(93, 230, 225, 0.4);
+}
+
+.login-info {
+    background: rgba(255, 230, 133, 0.1);
+    border: 1px solid var(--golden-glow);
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 1.5rem;
+}
+
+body.dark-theme .login-info {
+    background: rgba(255, 230, 133, 0.15);
+}
+
+.login-info p {
+    color: var(--inactive);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.login-info i {
+    color: var(--golden-glow);
+}
+
+.error-message {
+    background: rgba(255, 119, 200, 0.1);
+    border: 1px solid var(--pink-glow);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    color: var(--pink-glow);
+    font-size: 0.9rem;
+}
+
+body.dark-theme .error-message {
+    background: rgba(255, 119, 200, 0.15);
+}
+
+.input-error {
+    border: 1px solid var(--pink-glow) !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card login-card">
+            <div class="card-body text-center p-5">
+                <div class="login-header">
+                    <i class="fas fa-cloud login-logo"></i>
+                    <h2 class="login-title">Vortex Cloud</h2>
+                    <p class="login-subtitle">Войдите в свою учетную запись</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            {{ form.username(class="form-control", placeholder="Имя пользователя") }}
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="error-message">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            {{ form.password(class="form-control", placeholder="Пароль") }}
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="error-message">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-check text-start">
+                        {{ form.remember_me(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ form.remember_me.id }}">
+                            Запомнить меня
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-login", value="Войти") }}
+                    </div>
+                </form>
+                
+                <div class="login-info">
+                    <p>
+                        <i class="fas fa-info-circle me-1"></i>
+                        По умолчанию: admin / admin123
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

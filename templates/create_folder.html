@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Создать папку - Cloud Storage{% endblock %}
+
+{% block content %}
+<style>
+.folder-creation-form {
+    background: linear-gradient(135deg, rgba(255, 230, 133, 0.1), rgba(93, 230, 225, 0.1));
+    border: 1px solid var(--golden-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .folder-creation-form {
+    background: linear-gradient(135deg, rgba(255, 230, 133, 0.15), rgba(93, 230, 225, 0.15));
+}
+
+.folder-rules {
+    background: rgba(93, 230, 225, 0.1);
+    border: 1px solid var(--cyan-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .folder-rules {
+    background: rgba(93, 230, 225, 0.15);
+}
+
+.folder-rules ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.folder-rules li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(93, 230, 225, 0.3);
+    position: relative;
+    padding-left: 30px;
+}
+
+.folder-rules li:last-child {
+    border-bottom: none;
+}
+
+.folder-rules li:before {
+    content: "📁";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    font-size: 1.2rem;
+}
+
+.current-path {
+    background: rgba(255, 119, 200, 0.1);
+    border: 1px solid var(--pink-glow);
+    border-radius: 10px;
+}
+
+body.dark-theme .current-path {
+    background: rgba(255, 119, 200, 0.15);
+}
+
+.form-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+body.dark-theme .form-label {
+    color: var(--text-dark);
+}
+
+.form-text {
+    color: var(--inactive);
+    font-size: 0.9rem;
+}
+
+.btn-secondary {
+    background: var(--inactive);
+    border: none;
+    color: var(--text-light);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--pink-glow);
+    transform: translateY(-1px);
+    color: var(--text-light);
+}
+
+.folder-icon {
+    color: var(--golden-glow);
+    font-size: 1.2rem;
+}
+
+.info-icon {
+    color: var(--cyan-glow);
+    font-size: 1.2rem;
+}
+</style>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card folder-creation-form">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-folder-plus me-2 folder-icon"></i>Создать новую папку
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if current_path %}
+                <div class="alert alert-info current-path">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Текущий путь:</strong> {{ current_path }}
+                </div>
+                {% endif %}
+                
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.name.id }}" class="form-label">Название папки</label>
+                        {{ form.name(class="form-control", placeholder="Введите название папки") }}
+                        <div class="form-text">
+                            Название должно содержать только буквы, цифры, пробелы и символы: - _ .
+                        </div>
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.parent_id.id }}" class="form-label">Родительская папка</label>
+                        {{ form.parent_id(class="form-select") }}
+                        <div class="form-text">
+                            Выберите папку, в которой будет создана новая папка
+                        </div>
+                        {% if form.parent_id.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.parent_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('upload_file') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Отмена
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 folder-rules">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2 info-icon"></i>Правила именования
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Название не может быть пустым</li>
+                    <li>Не используйте специальные символы: / \ : * ? " < > |</li>
+                    <li>Название не может начинаться с точки</li>
+                    <li>Максимальная длина: 255 символов</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

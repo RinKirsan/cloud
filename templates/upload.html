@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Загрузка файла - Cloud Storage{% endblock %}
+
+{% block content %}
+<style>
+.card-body {
+    transition: all 0.3s ease;
+    border: 2px dashed transparent;
+}
+
+.card-body.border-primary {
+    border-color: var(--cyan-glow) !important;
+    background-color: rgba(93, 230, 225, 0.05);
+}
+
+body.dark-theme .card-body.border-primary {
+    background-color: rgba(93, 230, 225, 0.1);
+}
+
+.form-control[type="file"] {
+    cursor: pointer;
+    border: 2px dashed var(--border-light);
+    background: rgba(93, 230, 225, 0.05);
+    transition: all 0.3s ease;
+}
+
+body.dark-theme .form-control[type="file"] {
+    border-color: var(--border-dark);
+    background: rgba(93, 230, 225, 0.1);
+}
+
+.form-control[type="file"]:hover {
+    border-color: var(--cyan-glow);
+    background: rgba(93, 230, 225, 0.1);
+    transform: translateY(-1px);
+}
+
+body.dark-theme .form-control[type="file"]:hover {
+    background: rgba(93, 230, 225, 0.15);
+}
+
+.form-control[type="file"]:focus {
+    border-color: var(--pink-glow);
+    box-shadow: 0 0 0 0.2rem rgba(255, 119, 200, 0.25);
+}
+
+#selectedFilesInfo {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.upload-progress {
+    background: var(--border-light);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+body.dark-theme .upload-progress {
+    background: var(--border-dark);
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+.file-info {
+    background: rgba(93, 230, 225, 0.1);
+    border: 1px solid var(--cyan-glow);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+}
+
+body.dark-theme .file-info {
+    background: rgba(93, 230, 225, 0.15);
+}
+
+.file-info:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(93, 230, 225, 0.2);
+}
+
+.drag-over {
+    border-color: var(--pink-glow) !important;
+    background-color: rgba(255, 119, 200, 0.1) !important;
+    transform: scale(1.02);
+}
+
+body.dark-theme .drag-over {
+    background-color: rgba(255, 119, 200, 0.15) !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--cyan-glow);
+    border-color: var(--cyan-glow);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+}
+
+.form-select {
+    border: 2px solid var(--border-light);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+body.dark-theme .form-select {
+    border-color: var(--border-dark);
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.form-select:focus {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+}
+
+.form-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+body.dark-theme .form-label {
+    color: var(--text-dark);
+}
+
+.form-text {
+    color: var(--inactive);
+    font-size: 0.9rem;
+}
+
+.upload-tips {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.1), rgba(255, 119, 200, 0.1));
+    border: 1px solid var(--cyan-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .upload-tips {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.15), rgba(255, 119, 200, 0.15));
+    border-color: var(--pink-glow);
+}
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>Загрузка файлов
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                                    <div class="mb-3">
+                    <label for="{{ form.files.id }}" class="form-label">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>Выберите файлы
+                    </label>
+                    {{ form.files(class="form-control", accept="*/*", multiple="multiple") }}
+                    {% if form.files.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.files.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Максимальный размер файла: {{ (config.MAX_CONTENT_LENGTH / (1024 * 1024))|round(1) }} МБ<br>
+                        <i class="fas fa-mouse-pointer me-1"></i>
+                        Можно выбрать несколько файлов одновременно (Ctrl+Click или Shift+Click)<br>
+                        <i class="fas fa-hand-paper me-1"></i>
+                        Или перетащите файлы в эту область
+                    </div>
+                </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.folder_id.id }}" class="form-label">Папка назначения</label>
+                        {{ form.folder_id(class="form-select") }}
+                        {% if form.folder_id.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.folder_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_public(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.is_public.id }}">
+                                Сделать файл публичным
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Публичные файлы доступны по прямой ссылке без авторизации
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Назад
+                        </a>
+                        {{ form.submit(class="btn btn-primary", value="Загрузить файлы") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Upload Tips -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>Советы по загрузке
+                </h6>
+                <ul class="mb-0">
+                    <li>Поддерживаются все типы файлов</li>
+                    <li>Можно загружать несколько файлов одновременно</li>
+                    <li>Файлы автоматически переименовываются для безопасности</li>
+                    <li>Можно создавать папки для организации файлов</li>
+                    <li>Публичные файлы доступны по прямой ссылке</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для улучшения UX при множественном выборе -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('{{ form.files.id }}');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    
+    // Обновляем текст кнопки при выборе файлов
+    fileInput.addEventListener('change', function() {
+        const files = this.files;
+        if (files.length > 0) {
+            // Показываем количество выбранных файлов
+            const totalSize = Array.from(files).reduce((sum, file) => sum + (file.size || 0), 0);
+            const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+            
+            submitBtn.innerHTML = `<i class="fas fa-upload me-1"></i>Загрузить ${files.length} файлов (${totalSizeMB} МБ)`;
+            
+            // Добавляем информацию о выбранных файлах
+            showSelectedFiles(files);
+        } else {
+            submitBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Загрузить файлы';
+            hideSelectedFiles();
+        }
+    });
+    
+    // Функция для отображения выбранных файлов
+    function showSelectedFiles(files) {
+        let existingInfo = document.getElementById('selectedFilesInfo');
+        if (existingInfo) {
+            existingInfo.remove();
+        }
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.id = 'selectedFilesInfo';
+        infoDiv.className = 'alert alert-info mt-3';
+        
+        let filesList = '<strong>Выбранные файлы:</strong><br>';
+        let totalSize = 0;
+        
+        Array.from(files).forEach((file, index) => {
+            const fileSize = file.size || 0;
+            const sizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+            totalSize += fileSize;
+            filesList += `${index + 1}. ${file.name} (${sizeMB} МБ)<br>`;
+        });
+        
+        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+        filesList += `<br><strong>Общий размер: ${totalSizeMB} МБ</strong>`;
+        
+        infoDiv.innerHTML = filesList;
+        
+        // Вставляем после формы
+        const form = document.querySelector('form');
+        form.parentNode.insertBefore(infoDiv, form.nextSibling);
+    }
+    
+    // Функция для скрытия информации о файлах
+    function hideSelectedFiles() {
+        const existingInfo = document.getElementById('selectedFilesInfo');
+        if (existingInfo) {
+            existingInfo.remove();
+        }
+    }
+    
+    // Drag and Drop поддержка
+    const dropZone = document.querySelector('.card-body');
+    
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-primary');
+    });
+    
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+    });
+    
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-primary');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+    
+    // Проверка перед отправкой формы
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (fileInput.files.length === 0) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите хотя бы один файл для загрузки');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

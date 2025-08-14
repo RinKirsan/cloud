@@ -1,0 +1,650 @@
+{% extends "base.html" %}
+
+{% block title %}Управление пользователями - Cloud Storage{% endblock %}
+
+<style>
+/* Стили для кнопки действий */
+.dropdown .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Стили для выпадающего меню */
+.dropdown-menu {
+    min-width: 200px;
+    z-index: 9999;
+    margin-top: 5px;
+    position: fixed !important;
+    transform: none !important;
+}
+
+/* Исправление для Bootstrap dropdown */
+.dropdown-menu.show {
+    display: block !important;
+}
+
+/* Убеждаемся, что dropdown не обрезается */
+.dropdown {
+    position: relative;
+}
+
+/* Убеждаемся, что таблица корректно отображается */
+.table-responsive {
+    overflow: visible !important;
+}
+
+/* Контейнер для таблицы */
+.card-body {
+    overflow: visible !important;
+}
+
+/* Основной контейнер страницы */
+.container-fluid {
+    overflow: visible !important;
+}
+
+/* Родительские контейнеры */
+.row, .col, .col-md-8, .col-md-4 {
+    overflow: visible !important;
+}
+
+/* Отключаем стандартное позиционирование Bootstrap */
+.dropdown-menu[data-bs-popper] {
+    position: fixed !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+}
+
+.table td:last-child {
+    width: 120px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Стили для статистики */
+.stats-card {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: #f8f9fa;
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+/* Стили для хранилища */
+.storage-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.storage-fill {
+    height: 100%;
+    background-color: #0d6efd;
+    transition: width 0.3s ease;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Создать пользователя
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.username.id }}" class="form-label">Имя пользователя</label>
+                        {{ form.username(class="form-control") }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id }}" class="form-label">Email</label>
+                        {{ form.email(class="form-control", type="email") }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password.id }}" class="form-label">Пароль</label>
+                        {{ form.password(class="form-control") }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password2.id }}" class="form-label">Подтвердите пароль</label>
+                        {{ form.password2(class="form-control") }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                                                        <label for="{{ form.storage_limit.id }}" class="form-label">Лимит хранилища (МБ)</label>
+                                {{ form.storage_limit(class="form-control", min="1") }}
+                                <div class="form-text">
+                                    Минимум: 1 МБ, максимум: 100,000 МБ (100 ГБ)
+                                </div>
+                                {% if form.storage_limit.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.storage_limit.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_admin(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.is_admin.id }}">
+                                Администратор
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Администраторы могут управлять пользователями и настройками системы
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Список пользователей
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Email</th>
+                                <th>Роль</th>
+                                <th>Хранилище</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr data-user-id="{{ user.id }}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-2">
+                                            <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <strong>{{ user.username }}</strong>
+                                            <br>
+                                            <small class="text-muted">ID: {{ user.id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-shield-alt me-1"></i>Админ
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-user me-1"></i>Пользователь
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="storage-info">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>{{ user.get_storage_usage_mb() }} МБ</span>
+                                            <span>{{ user.get_storage_limit_mb() }} МБ</span>
+                                        </div>
+                                        <div class="storage-bar">
+                                            <div class="storage-fill" style="width: {{ user.get_storage_percentage() }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ user.get_storage_percentage() }}%</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Активен
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times me-1"></i>Неактивен
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="showUserActions({{ user.id }}, '{{ user.username }}')" title="Действия">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Пользователи не найдены</h5>
+                    <p class="text-muted">Создайте первого пользователя, используя форму слева</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- System Statistics -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-chart-bar me-2"></i>Статистика системы
+                </h6>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ users|length }}</div>
+                            <div class="stats-label">Всего пользователей</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ users|selectattr('is_admin')|list|length }}</div>
+                            <div class="stats-label">Администраторов</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ users|selectattr('is_active')|list|length }}</div>
+                            <div class="stats-label">Активных</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ users|rejectattr('is_active')|list|length }}</div>
+                            <div class="stats-label">Неактивных</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для действий с пользователем -->
+<div class="modal fade" id="userActionsModal" tabindex="-1" aria-labelledby="userActionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userActionsModalLabel">
+                    <i class="fas fa-user-cog me-2"></i>Действия с пользователем
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-edit me-2"></i>Редактирование
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-lg" onclick="editUserFromModal()">
+                                <i class="fas fa-user-edit me-2"></i>Редактировать профиль
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-lg" onclick="editUserSettingsFromModal()">
+                                <i class="fas fa-cogs me-2"></i>Настройки пользователя
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-warning mb-3">
+                            <i class="fas fa-shield-alt me-2"></i>Безопасность
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-warning btn-lg" onclick="resetPasswordFromModal()">
+                                <i class="fas fa-key me-2"></i>Сбросить пароль
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="toggleUserStatusFromModal()">
+                                <i class="fas fa-toggle-on me-2"></i>Изменить статус
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3">
+                            <i class="fas fa-database me-2"></i>Хранилище
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-success btn-lg" onclick="manageUserStorageFromModal()">
+                                <i class="fas fa-hdd me-2"></i>Управление хранилищем
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-lg" onclick="viewUserFilesFromModal()">
+                                <i class="fas fa-folder-open me-2"></i>Просмотр файлов
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Опасные действия
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-danger btn-lg" onclick="deleteUserFromModal()">
+                                <i class="fas fa-trash me-2"></i>Удалить пользователя
+                            </button>
+                            <button type="button" class="btn btn-outline-dark btn-lg" onclick="exportUserDataFromModal()">
+                                <i class="fas fa-download me-2"></i>Экспорт данных
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Информация о пользователе -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-muted mb-2">
+                        <i class="fas fa-info-circle me-2"></i>Информация о пользователе
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">ID</small>
+                            <strong id="modalUserId">-</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Email</small>
+                            <strong id="modalUserEmail">-</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Роль</small>
+                            <span id="modalUserRole">-</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Статус</small>
+                            <span id="modalUserStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Инициализация страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Страница управления пользователями загружена');
+});
+
+// Глобальные переменные для модального окна
+let currentUserId = null;
+let currentUsername = null;
+
+// Функция для показа модального окна с действиями
+function showUserActions(userId, username) {
+    currentUserId = userId;
+    currentUsername = username;
+    
+    // Получаем данные пользователя из таблицы
+    const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
+    if (userRow) {
+        const email = userRow.querySelector('td:nth-child(2)').textContent.trim();
+        const role = userRow.querySelector('td:nth-child(3) .badge').textContent.trim();
+        const status = userRow.querySelector('td:nth-child(5) .badge').textContent.trim();
+        
+        // Обновляем информацию в модальном окне
+        document.getElementById('modalUserId').textContent = userId;
+        document.getElementById('modalUserEmail').textContent = email;
+        document.getElementById('modalUserRole').textContent = role;
+        document.getElementById('modalUserStatus').textContent = status;
+    }
+    
+    // Обновляем заголовок модального окна
+    document.getElementById('userActionsModalLabel').textContent = `Действия с пользователем: ${username}`;
+    
+    // Показываем модальное окно
+    const modal = new bootstrap.Modal(document.getElementById('userActionsModal'));
+    modal.show();
+}
+
+// Функции для действий из модального окна
+function editUserFromModal() {
+    if (currentUserId) {
+        window.location.href = `/admin/users/${currentUserId}/edit`;
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function editUserSettingsFromModal() {
+    if (currentUserId) {
+        window.location.href = `/admin/users/${currentUserId}/settings`;
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function resetPasswordFromModal() {
+    if (currentUserId) {
+        if (confirm('Сбросить пароль для пользователя ' + currentUsername + '?\n\nБудет сгенерирован новый пароль.')) {
+            // Создаем форму для отправки POST запроса
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/users/${currentUserId}/reset-password`;
+            
+            // Добавляем CSRF токен
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function toggleUserStatusFromModal() {
+    if (currentUserId) {
+        const newStatus = confirm('Изменить статус пользователя "' + currentUsername + '" на противоположный?');
+        if (newStatus) {
+            // Создаем форму для отправки POST запроса
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/users/${currentUserId}/toggle-status`;
+            
+            // Добавляем CSRF токен
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function manageUserStorageFromModal() {
+    if (currentUserId) {
+        window.location.href = `/admin/users/${currentUserId}/storage`;
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function viewUserFilesFromModal() {
+    if (currentUserId) {
+        window.location.href = `/admin/users/${currentUserId}/files`;
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function exportUserDataFromModal() {
+    if (currentUserId) {
+        if (confirm('Экспортировать данные пользователя "' + currentUsername + '"?\n\nЭто может занять некоторое время.')) {
+            window.location.href = `/admin/users/${currentUserId}/export`;
+        }
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function deleteUserFromModal() {
+    if (currentUserId && currentUsername) {
+        if (confirm('Вы уверены, что хотите удалить пользователя "' + currentUsername + '"?\n\nЭто действие нельзя отменить!\n\nУбедитесь, что у пользователя нет файлов или папок.')) {
+            // Создаем форму для отправки POST запроса
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/users/${currentUserId}/delete`;
+            
+            // Добавляем CSRF токен
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('userActionsModal'));
+        modal.hide();
+    }
+}
+
+function editUser(userId) {
+    window.location.href = `/admin/users/${userId}/edit`;
+}
+
+function resetPassword(userId) {
+    if (confirm('Сбросить пароль для пользователя ' + userId + '?\n\nБудет сгенерирован новый пароль.')) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/users/${userId}/reset-password`;
+        
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deleteUser(userId, username) {
+    if (confirm('Вы уверены, что хотите удалить пользователя "' + username + '"?\n\nЭто действие нельзя отменить!\n\nУбедитесь, что у пользователя нет файлов или папок.')) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/users/${userId}/delete`;
+        
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

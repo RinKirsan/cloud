@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки профиля - Cloud Storage{% endblock %}
+
+{% block content %}
+<style>
+.settings-form {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.1), rgba(255, 119, 200, 0.1));
+    border: 1px solid var(--cyan-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .settings-form {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.15), rgba(255, 119, 200, 0.15));
+}
+
+.profile-info {
+    background: rgba(255, 230, 133, 0.1);
+    border: 1px solid var(--golden-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .profile-info {
+    background: rgba(255, 230, 133, 0.15);
+}
+
+.profile-info p {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 230, 133, 0.3);
+    margin-bottom: 0;
+}
+
+.profile-info p:last-child {
+    border-bottom: none;
+}
+
+.profile-info strong {
+    color: var(--cyan-glow);
+    font-weight: 600;
+}
+
+.settings-icon {
+    color: var(--cyan-glow);
+    font-size: 1.2rem;
+}
+
+.info-icon {
+    color: var(--golden-glow);
+    font-size: 1.2rem;
+}
+
+.form-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+body.dark-theme .form-label {
+    color: var(--text-dark);
+}
+
+.form-text {
+    color: var(--inactive);
+    font-size: 0.9rem;
+}
+
+.storage-usage {
+    background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+    color: var(--text-light);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+    display: inline-block;
+    margin: 5px 0;
+}
+
+.storage-limit {
+    color: var(--inactive);
+    font-size: 0.9rem;
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--inactive);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.password-toggle:hover {
+    color: var(--cyan-glow);
+}
+
+.form-control:focus {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+    border: none;
+    padding: 12px 24px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(93, 230, 225, 0.3);
+}
+</style>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card settings-form">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-cog me-2 settings-icon"></i>Настройки профиля
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id }}" class="form-label">Email</label>
+                        {{ form.email(class="form-control", type="email") }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.current_password.id }}" class="form-label">Текущий пароль</label>
+                        {{ form.current_password(class="form-control") }}
+                        <div class="form-text">
+                            Введите текущий пароль для подтверждения изменений
+                        </div>
+                        {% if form.current_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.current_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.new_password.id }}" class="form-label">Новый пароль</label>
+                        {{ form.new_password(class="form-control") }}
+                        <div class="form-text">
+                            Оставьте пустым, если не хотите менять пароль
+                        </div>
+                        {% if form.new_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.new_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.new_password2.id }}" class="form-label">Подтвердите новый пароль</label>
+                        {{ form.new_password2(class="form-control") }}
+                        {% if form.new_password2.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.new_password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 profile-info">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2 info-icon"></i>Информация о профиле
+                </h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Имя пользователя:</strong> {{ current_user.username }}</p>
+                <p><strong>Email:</strong> {{ current_user.email }}</p>
+                <p><strong>Дата регистрации:</strong> {{ current_user.created_at.strftime('%d.%m.%Y') if current_user.created_at else 'Не указана' }}</p>
+                <p><strong>Лимит хранилища:</strong> 
+                    <span class="storage-usage">{{ (current_user.storage_limit // (1024 * 1024 * 1024)) }} ГБ</span>
+                </p>
+                <p><strong>Использовано:</strong> 
+                    <span class="storage-limit">{{ (current_user.storage_used // (1024 * 1024 * 1024)) }} ГБ</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

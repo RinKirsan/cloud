@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% endif %}
+    <title>{% block title %}Vortex Cloud{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Vortex Cloud Color Palette */
+            --bg-dark: #121212;
+            --bg-light: #F7F7F7;
+            --text-dark: #EDEDED;
+            --text-light: #1C1C1C;
+            --cyan-glow: #5DE6E1;
+            --pink-glow: #FF77C8;
+            --golden-glow: #FFE685;
+            --border-dark: #2A2A2A;
+            --border-light: #DDDDDD;
+            --inactive: #7A7A7A;
+            
+            /* Legacy colors for compatibility */
+            --primary-color: var(--cyan-glow);
+            --secondary-color: var(--inactive);
+            --success-color: var(--cyan-glow);
+            --danger-color: var(--pink-glow);
+            --warning-color: var(--golden-glow);
+            --info-color: var(--cyan-glow);
+            --light-color: var(--bg-light);
+            --dark-color: var(--bg-dark);
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            border-bottom: 1px solid var(--border-light);
+            min-height: 70px;
+            padding: 0.5rem 0;
+        }
+        
+        body.dark-theme .navbar {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            border-bottom: 1px solid var(--border-dark);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--text-light) !important;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar-brand img {
+            transition: transform 0.3s ease;
+            margin: 0;
+            padding: 0;
+            display: block;
+            vertical-align: top;
+        }
+        
+        .logo-image {
+            margin: 0;
+            padding: 0;
+            display: block;
+            vertical-align: top;
+        }
+        
+        .brand-text {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-right: 45px;
+        }
+        
+        .navbar-brand:hover img {
+            transform: rotate(180deg);
+        }
+        
+        body.dark-theme .navbar-brand {
+            color: var(--text-dark) !important;
+        }
+        
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme .navbar-nav .nav-link {
+            color: var(--text-dark) !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--golden-glow) !important;
+            transform: translateY(-1px);
+        }
+        
+        .card {
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+        
+        body.dark-theme .card {
+            border-color: var(--border-dark);
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn {
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            border: none;
+            color: var(--text-light);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(93, 230, 225, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--cyan-glow);
+            color: var(--text-light);
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-secondary {
+            border: 2px solid var(--inactive);
+            color: var(--inactive);
+            background: transparent;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: var(--inactive);
+            color: var(--text-light);
+            transform: translateY(-1px);
+        }
+        
+        /* Стили для кнопок переключения представления */
+        .btn-view-toggle {
+            border: 2px solid var(--border-light) !important;
+            color: var(--text-light) !important;
+            background: transparent !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            outline: none !important;
+        }
+        
+        body.dark-theme .btn-view-toggle {
+            border-color: var(--border-dark) !important;
+            color: var(--text-dark) !important;
+        }
+        
+        .btn-view-toggle:hover {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            color: var(--text-light);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 230, 225, 0.3);
+        }
+        
+        .btn-view-toggle.active {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow) !important);
+            color: var(--text-light) !important;
+            border-color: transparent !important;
+            box-shadow: 0 2px 8px rgba(93, 230, 225, 0.2) !important;
+            transform: translateY(-1px);
+            outline: none !important;
+        }
+        
+        /* Дополнительная защита от Bootstrap стилей */
+        .btn-view-toggle.active.btn {
+            border-color: transparent !important;
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow)) !important;
+        }
+        
+        /* Анимация для плавного перехода между состояниями */
+        .btn-view-toggle:not(.active):hover {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            color: var(--text-light) !important;
+            border-color: transparent !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 230, 225, 0.3);
+        }
+        
+        /* Убираем синюю обводку при фокусе */
+        .btn-view-toggle:focus {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        
+        .btn-view-toggle:focus-visible {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        
+        .btn-view-toggle:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .btn-view-toggle:last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        /* Стили для группы кнопок */
+        .btn-group .btn-view-toggle {
+            border-radius: 8px;
+            margin: 0;
+        }
+        
+        .btn-group .btn-view-toggle:not(:first-child) {
+            border-left: 1px solid var(--border-light);
+        }
+        
+        body.dark-theme .btn-group .btn-view-toggle:not(:first-child) {
+            border-left-color: var(--border-dark);
+        }
+        
+        .btn-group .btn-view-toggle.active + .btn-view-toggle {
+            border-left-color: transparent;
+        }
+        
+        /* Стили для кнопки "Назад" */
+        .btn-back {
+            border: 2px solid var(--golden-glow) !important;
+            color: var(--golden-glow) !important;
+            background: transparent !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            outline: none !important;
+        }
+        
+        .btn-back:hover {
+            background: var(--golden-glow) !important;
+            color: var(--text-light) !important;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(255, 230, 133, 0.3);
+        }
+        
+        .btn-back:focus {
+            border-color: var(--golden-glow) !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        
+        .btn-outline-light {
+            border: 2px solid var(--text-light);
+            color: var(--text-light);
+            background: transparent;
+        }
+        
+        body.dark-theme .btn-outline-light {
+            border-color: var(--text-dark);
+            color: var(--text-dark);
+        }
+        
+        .btn-outline-light:hover {
+            background: var(--text-light);
+            color: var(--bg-light);
+            transform: translateY(-1px);
+        }
+        
+        body.dark-theme .btn-outline-light:hover {
+            background: var(--text-dark);
+            color: var(--bg-dark);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid var(--border-light);
+            transition: border-color 0.3s;
+            background: white;
+            color: var(--text-light);
+        }
+        
+        body.dark-theme .form-control {
+            border-color: var(--border-dark);
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .form-control:focus {
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+        }
+        
+        .file-item, .folder-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background: white;
+            border-left: 4px solid var(--cyan-glow);
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+        
+        body.dark-theme .file-item, body.dark-theme .folder-item {
+            background: var(--bg-dark);
+            border-left-color: var(--cyan-glow);
+            color: var(--text-dark);
+        }
+        
+        .file-item:hover, .folder-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .folder-item {
+            border-left-color: var(--golden-glow);
+        }
+        
+        .storage-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-light);
+            overflow: hidden;
+        }
+        
+        body.dark-theme .storage-bar {
+            background: var(--border-dark);
+        }
+        
+        .storage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+            transition: width 0.3s;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-light);
+        }
+        
+        body.dark-theme .sidebar {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-light);
+        }
+        
+        body.dark-theme .main-content {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--cyan-glow);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--pink-glow);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .alert-success {
+            background: rgba(93, 230, 225, 0.1);
+            color: var(--cyan-glow);
+            border-left: 4px solid var(--cyan-glow);
+        }
+        
+        .alert-danger {
+            background: rgba(255, 119, 200, 0.1);
+            color: var(--pink-glow);
+            border-left: 4px solid var(--pink-glow);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 230, 133, 0.1);
+            color: var(--golden-glow);
+            border-left: 4px solid var(--golden-glow);
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background: var(--bg-light);
+            border: none;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        body.dark-theme .table th {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .table td {
+            border-color: var(--border-light);
+            color: var(--text-light);
+        }
+        
+        body.dark-theme .table td {
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+        
+        /* Переопределяем Bootstrap CSS переменные для таблиц */
+        :root {
+            --bs-table-bg: var(--bg-light);
+            --bs-table-color: var(--text-light);
+            --bs-body-bg: var(--bg-light);
+        }
+        
+        body.dark-theme {
+            --bs-table-bg: var(--bg-dark);
+            --bs-table-color: var(--text-dark);
+            --bs-body-bg: var(--bg-dark);
+        }
+        
+        /* Фон строк таблицы */
+        .table tbody tr {
+            background-color: var(--bg-light) !important;
+        }
+        
+        body.dark-theme .table tbody tr {
+            background-color: var(--bg-dark) !important;
+        }
+        
+        /* Дополнительная защита от Bootstrap */
+        .table tbody tr:nth-child(even) {
+            background-color: var(--bg-light) !important;
+        }
+        
+        body.dark-theme .table tbody tr:nth-child(even) {
+            background-color: var(--bg-dark) !important;
+        }
+        
+        /* Стили для миниатюр изображений */
+        .file-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid var(--border-light);
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+        
+        body.dark-theme .file-thumbnail {
+            border-color: var(--border-dark);
+            background: var(--bg-dark);
+        }
+        
+        .file-thumbnail:hover {
+            transform: scale(1.1);
+            border-color: var(--cyan-glow);
+            box-shadow: 0 2px 8px rgba(93, 230, 225, 0.3);
+        }
+        
+        .file-thumbnail-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid var(--border-light);
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--inactive);
+            font-size: 1.2rem;
+        }
+        
+        body.dark-theme .file-thumbnail-placeholder {
+            border-color: var(--border-dark);
+            background: var(--bg-dark);
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--cyan-glow);
+        }
+        
+        .stats-label {
+            color: var(--inactive);
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-menu {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        body.dark-theme .dropdown-menu {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .dropdown-item {
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+        
+        body.dark-theme .dropdown-item {
+            color: var(--text-dark);
+        }
+        
+        .dropdown-item:hover {
+            background: var(--cyan-glow);
+            color: var(--text-light);
+        }
+        
+        .dropdown-divider {
+            border-color: var(--border-light);
+        }
+        
+        body.dark-theme .dropdown-divider {
+            border-color: var(--border-dark);
+        }
+        
+        .badge {
+            border-radius: 15px;
+            padding: 5px 10px;
+        }
+        
+        .badge.bg-success {
+            background: var(--cyan-glow) !important;
+            color: var(--text-light);
+        }
+        
+        .badge.bg-warning {
+            background: var(--golden-glow) !important;
+            color: var(--text-light);
+        }
+        
+        .badge.bg-danger {
+            background: var(--pink-glow) !important;
+            color: var(--text-light);
+        }
+        
+        .text-muted {
+            color: var(--inactive) !important;
+        }
+        
+        .btn-group .btn {
+            border-radius: 10px;
+        }
+        
+        .btn-group .btn:first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .btn-group .btn:last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        .btn-group .btn:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+        
+        /* File and Folder Items */
+        .item-card {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        body.dark-theme .item-card {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            border-color: var(--cyan-glow);
+        }
+        
+        .item-card.folder-item {
+            border-left: 4px solid var(--golden-glow);
+        }
+        
+        .item-card.file-item {
+            border-left: 4px solid var(--cyan-glow);
+        }
+        
+        .item-card.file-item:hover {
+            border-left-color: var(--pink-glow);
+        }
+        
+        .item-card.folder-item:hover {
+            border-left-color: var(--golden-glow);
+        }
+        
+        /* File Type Icons */
+        .fa-folder.text-warning {
+            color: var(--golden-glow) !important;
+        }
+        
+        .fa-image.text-success {
+            color: var(--cyan-glow) !important;
+        }
+        
+        .fa-video.text-danger {
+            color: var(--pink-glow) !important;
+        }
+        
+        .fa-music.text-info {
+            color: var(--cyan-glow) !important;
+        }
+        
+        .fa-file-alt.text-primary {
+            color: var(--cyan-glow) !important;
+        }
+        
+        .fa-file.text-secondary {
+            color: var(--inactive) !important;
+        }
+        
+        /* Context Menu */
+        .context-menu {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            min-width: 200px;
+            z-index: 1000;
+        }
+        
+        body.dark-theme .context-menu {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+        
+        body.dark-theme .context-menu-item {
+            color: var(--text-dark);
+        }
+        
+        .context-menu-item:hover {
+            background: var(--cyan-glow);
+            color: var(--text-light);
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 15px;
+            border: 1px solid var(--border-light);
+            background: white;
+        }
+        
+        body.dark-theme .modal-content {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+            color: var(--text-dark);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            color: var(--text-light);
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--border-light);
+        }
+        
+        body.dark-theme .modal-header,
+        body.dark-theme .modal-footer {
+            border-color: var(--border-dark);
+        }
+        
+        /* Search Results */
+        .search-highlight {
+            background: var(--golden-glow);
+            color: var(--text-light);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        /* Loading Spinner */
+        .spinner-border {
+            color: var(--cyan-glow);
+        }
+        
+        /* Progress Bar */
+        .progress {
+            background: var(--border-light);
+            border-radius: 10px;
+            height: 8px;
+        }
+        
+        body.dark-theme .progress {
+            background: var(--border-dark);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+            border-radius: 10px;
+        }
+        
+        /* Tooltip */
+        .tooltip-inner {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+            border-radius: 8px;
+        }
+        
+        .tooltip-arrow::before {
+            border-top-color: var(--bg-dark);
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+        
+        body.dark-theme ::-webkit-scrollbar-track {
+            background: var(--border-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan-glow);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pink-glow);
+        }
+        
+        /* Focus States */
+        .btn:focus,
+        .form-control:focus,
+        .btn-close:focus {
+            box-shadow: 0 0 0 0.2rem rgba(93, 230, 225, 0.25);
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-bottom: 20px;
+            }
+            
+            .item-card {
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 6px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Vortex Cloud Logo" width="80" height="80" class="logo-image">
+                <span class="brand-text">Vortex Cloud</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if current_user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('upload_file') }}">
+                            <i class="fas fa-upload me-1"></i>Загрузить
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_folder') }}">
+                            <i class="fas fa-folder-plus me-1"></i>Создать папку
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('search') }}">
+                            <i class="fas fa-search me-1"></i>Поиск
+                        </a>
+                    </li>
+                    {% if current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fas fa-users-cog me-1"></i>Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_settings') }}">
+                            <i class="fas fa-cog me-1"></i>Настройки системы
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm" id="themeToggle" onclick="toggleTheme()">
+                            <i class="fas fa-moon me-1" id="themeIcon"></i>
+                            <span id="themeText">Тёмная тема</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('settings') }}">
+                                <i class="fas fa-user-cog me-2"></i>Настройки
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Выйти
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Confirm delete actions
+        function confirmDelete(message) {
+            return confirm(message || 'Вы уверены, что хотите удалить этот элемент?');
+        }
+        
+        // Глобальная функция для показа модальных окон Bootstrap
+        window.showBootstrapModal = function(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                return modal;
+            }
+            return null;
+        };
+        
+        // Глобальная функция для скрытия модальных окон Bootstrap
+        window.hideBootstrapModal = function(modalId) {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+        };
+        
+        // Функция переключения темы
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (body.classList.contains('dark-theme')) {
+                // Переключаем на светлую тему
+                body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                themeIcon.className = 'fas fa-sun me-1';
+                themeText.textContent = 'Тёмная тема';
+            } else {
+                // Переключаем на тёмную тему
+                body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.className = 'fas fa-moon me-1';
+                themeText.textContent = 'Светлая тема';
+            }
+        }
+        
+        // Восстанавливаем тему при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-theme');
+                themeIcon.className = 'fas fa-moon me-1';
+                themeText.textContent = 'Светлая тема';
+            } else {
+                themeIcon.className = 'fas fa-sun me-1';
+                themeText.textContent = 'Тёмная тема';
+            }
+        });
+    </script>
+</body>
+</html>

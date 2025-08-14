@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена - Vortex Cloud{% endblock %}
+
+{% block content %}
+<style>
+.error-page {
+    background: linear-gradient(135deg, rgba(255, 119, 200, 0.1), rgba(93, 230, 225, 0.1));
+    border: 1px solid var(--pink-glow);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+body.dark-theme .error-page {
+    background: linear-gradient(135deg, rgba(255, 119, 200, 0.15), rgba(93, 230, 225, 0.15));
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.error-number {
+    font-size: 6rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--pink-glow), var(--cyan-glow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.error-title {
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+body.dark-theme .error-title {
+    color: var(--text-dark);
+}
+
+.error-description {
+    color: var(--inactive);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-home {
+    background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+    border: none;
+    color: var(--text-light);
+    padding: 12px 24px;
+    border-radius: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(93, 230, 225, 0.3);
+}
+
+.btn-home:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(93, 230, 225, 0.4);
+    color: var(--text-light);
+}
+
+.btn-back {
+    border: 2px solid var(--inactive);
+    color: var(--inactive);
+    background: transparent;
+    padding: 12px 24px;
+    border-radius: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    border-color: var(--golden-glow);
+    color: var(--golden-glow);
+    transform: translateY(-2px);
+}
+
+.error-icon {
+    color: var(--pink-glow);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+</style>
+
+<div class="row">
+    <div class="col-md-6 mx-auto text-center">
+        <div class="card error-page">
+            <div class="card-body p-5">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h1 class="error-number">404</h1>
+                <h2 class="error-title">Страница не найдена</h2>
+                <p class="error-description">
+                    Запрашиваемая страница не существует или была перемещена.
+                </p>
+                <div class="error-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-home">
+                        <i class="fas fa-home me-2"></i>На главную
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Назад
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

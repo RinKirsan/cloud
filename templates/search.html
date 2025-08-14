@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск - Cloud Storage{% endblock %}
+
+{% block content %}
+<style>
+.search-form {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.1), rgba(255, 119, 200, 0.1));
+    border: 1px solid var(--cyan-glow);
+    border-radius: 15px;
+    padding: 20px;
+}
+
+body.dark-theme .search-form {
+    background: linear-gradient(135deg, rgba(93, 230, 225, 0.15), rgba(255, 119, 200, 0.15));
+}
+
+.input-group .form-control {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .form-select {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-right: none;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.search-results {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+body.dark-theme .search-results {
+    background: var(--bg-dark);
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+body.dark-theme .list-group-item {
+    border-bottom-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item:hover {
+    background: rgba(93, 230, 225, 0.1);
+    transform: translateX(5px);
+}
+
+body.dark-theme .list-group-item:hover {
+    background: rgba(93, 230, 225, 0.15);
+}
+
+.search-icon {
+    color: var(--cyan-glow);
+    font-size: 1.2rem;
+}
+
+.search-highlight {
+    background: var(--golden-glow);
+    color: var(--text-light);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.search-stats {
+    background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+    color: var(--text-light);
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-weight: 500;
+}
+
+.search-tips {
+    background: rgba(255, 230, 133, 0.1);
+    border: 1px solid var(--golden-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .search-tips {
+    background: rgba(255, 230, 133, 0.15);
+}
+
+.search-tips ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.search-tips li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 230, 133, 0.3);
+    position: relative;
+    padding-left: 25px;
+}
+
+.search-tips li:last-child {
+    border-bottom: none;
+}
+
+.search-tips li:before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    font-size: 1.1rem;
+}
+
+.no-results {
+    background: rgba(255, 119, 200, 0.1);
+    border: 1px solid var(--pink-glow);
+    border-radius: 15px;
+}
+
+body.dark-theme .no-results {
+    background: rgba(255, 119, 200, 0.15);
+}
+
+.no-results .fa-search {
+    color: var(--pink-glow);
+}
+
+.file-type-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.file-type-icon.fa-file {
+    color: var(--cyan-glow);
+}
+
+.file-type-icon.fa-folder {
+    color: var(--golden-glow);
+}
+
+.search-query {
+    background: var(--golden-glow);
+    color: var(--text-light);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+    display: inline-block;
+    margin: 5px 0;
+}
+</style>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card search-form">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2 search-icon"></i>Поиск файлов и папок
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Введите название файла или папки..." 
+                               value="{{ request.args.get('q', '') }}" required>
+                        <select name="type" class="form-select" style="max-width: 150px;">
+                            <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>Все</option>
+                            <option value="files" {% if request.args.get('type') == 'files' %}selected{% endif %}>Только файлы</option>
+                            <option value="folders" {% if request.args.get('type') == 'folders' %}selected{% endif %}>Только папки</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Найти
+                        </button>
+                    </div>
+                </form>
+                
+                {% if query %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Результаты поиска для:</strong> 
+                    <span class="search-query">"{{ query }}"</span>
+                    {% if results %}
+                        <span class="search-stats ms-2">{{ results|length }} найдено</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if results %}
+        <div class="card mt-4 search-results">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Результаты поиска
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for item in results %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if item.__class__.__name__ == 'File' %}
+                                <i class="fas fa-file me-3 file-type-icon fa-file"></i>
+                                <div>
+                                    <h6 class="mb-1">{{ item.original_filename }}</h6>
+                                    <small class="text-muted">
+                                        Размер: {{ item.get_file_size_formatted() }} | 
+                                        Тип: {{ item.mime_type }} | 
+                                        Загружен: {{ item.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                    </small>
+                                </div>
+                            {% else %}
+                                <i class="fas fa-folder me-3 file-type-icon fa-folder"></i>
+                                <div>
+                                    <h6 class="mb-1">{{ item.name }}</h6>
+                                    <small class="text-muted">
+                                        Создана: {{ item.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="btn-group">
+                            {% if item.__class__.__name__ == 'File' %}
+                                <a href="{{ url_for('download_file', file_id=item.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i>Скачать
+                                </a>
+                                <a href="{{ url_for('view_file', file_id=item.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye me-1"></i>Просмотр
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('files', folder_id=item.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-folder-open me-1"></i>Открыть
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% elif query and not results %}
+        <div class="card mt-4 no-results">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h5 class="text-muted">Ничего не найдено</h5>
+                <p class="text-muted">Попробуйте изменить поисковый запрос или критерии поиска</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if not query %}
+        <div class="card mt-4 search-tips">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Советы по поиску
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Используйте точные названия для быстрого поиска</li>
+                    <li>Поиск не чувствителен к регистру</li>
+                    <li>Можно искать по типу файлов или папок</li>
+                    <li>Результаты показывают только ваши файлы и папки</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

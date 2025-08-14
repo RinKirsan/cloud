@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Хранилище пользователя {{ user.username }} - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-hdd me-2"></i>Хранилище пользователя: {{ user.username }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Статистика хранилища -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card text-center">
+                            <div class="stats-number text-primary">{{ user.get_storage_usage_mb() }}</div>
+                            <div class="stats-label">Использовано (МБ)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center">
+                            <div class="stats-number text-success">{{ user.get_storage_limit_mb() }}</div>
+                            <div class="stats-label">Лимит (МБ)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center">
+                            <div class="stats-number text-info">{{ user.get_storage_percentage() }}%</div>
+                            <div class="stats-label">Заполнено</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card text-center">
+                            <div class="stats-number text-warning">{{ files|length }}</div>
+                            <div class="stats-label">Файлов</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Прогресс-бар хранилища -->
+                <div class="mb-4">
+                    <label class="form-label">Использование хранилища</label>
+                    <div class="storage-bar">
+                        <div class="storage-fill" style="width: {{ user.get_storage_percentage() }}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small class="text-muted">{{ user.get_storage_usage_mb() }} МБ использовано</small>
+                        <small class="text-muted">{{ user.get_storage_limit_mb() }} МБ доступно</small>
+                    </div>
+                </div>
+                
+                <!-- Список папок -->
+                {% if folders %}
+                <div class="mb-4">
+                    <h6><i class="fas fa-folder me-2"></i>Папки ({{ folders|length }})</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Путь</th>
+                                    <th>Дата создания</th>
+                                    <th>Размер содержимого</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for folder in folders %}
+                                <tr>
+                                    <td><i class="fas fa-folder text-warning me-2"></i>{{ folder.name }}</td>
+                                    <td><code>{{ folder.path }}</code></td>
+                                    <td>{{ folder.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td>
+                                        {% set folder_size = 0 %}
+                                        {% for file in folder.files %}
+                                            {% set folder_size = folder_size + file.file_size %}
+                                        {% endfor %}
+                                        {{ (folder_size / (1024 * 1024))|round(2) }} МБ
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Список файлов -->
+                {% if files %}
+                <div class="mb-4">
+                    <h6><i class="fas fa-file me-2"></i>Файлы ({{ files|length }})</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Файл</th>
+                                    <th>Размер</th>
+                                    <th>Тип</th>
+                                    <th>Папка</th>
+                                    <th>Дата загрузки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in files %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file text-primary me-2"></i>
+                                        {{ file.original_filename }}
+                                    </td>
+                                    <td>{{ file.get_file_size_formatted() }}</td>
+                                    <td>{{ file.mime_type }}</td>
+                                    <td>
+                                        {% if file.folder %}
+                                            <i class="fas fa-folder text-warning me-1"></i>{{ file.folder.name }}
+                                        {% else %}
+                                            <span class="text-muted">Корневая папка</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ file.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if not folders and not files %}
+                <div class="text-center py-4">
+                    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Хранилище пусто</h5>
+                    <p class="text-muted">У пользователя пока нет файлов или папок</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Назад к списку пользователей
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-card {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: #f8f9fa;
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.stats-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.storage-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.storage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.3s ease;
+}
+</style>
+{% endblock %}
+

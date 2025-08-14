@@ -1,0 +1,2059 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Vortex Cloud{% endblock %}
+
+{% block content %}
+<style>
+    /* Отключаем выделение текста на странице с файлами */
+    .main-content {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    /* Разрешаем выделение только для инпутов и текстовых областей */
+    input, textarea, .form-control {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+</style>
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="sidebar">
+            <h5 class="mb-3">
+                <i class="fas fa-user me-2"></i>{{ current_user.username }}
+            </h5>
+            
+            <!-- Storage Usage -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted">Использовано хранилища</span>
+                    <span class="small text-muted">{{ current_user.get_storage_usage_mb() }} / {{ current_user.get_storage_limit_mb() }} МБ</span>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-fill" style="width: {{ current_user.get_storage_percentage() }}%"></div>
+                </div>
+                <div class="text-center mt-2">
+                    <span class="badge bg-{{ 'success' if current_user.get_storage_percentage() < 80 else 'warning' if current_user.get_storage_percentage() < 95 else 'danger' }}">
+                        {{ current_user.get_storage_percentage() }}%
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="mb-4">
+                <h6 class="mb-3">Быстрые действия</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-2"></i>Загрузить файл
+                    </a>
+                    <a href="{{ url_for('create_folder') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-folder-plus me-2"></i>Создать папку
+                    </a>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-search me-2"></i>Поиск
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div>
+                <h6 class="mb-3">Статистика</h6>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ folders|length }}</div>
+                            <div class="stats-label">Папки</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ files|length }}</div>
+                            <div class="stats-label">Файлы</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="main-content">
+            <!-- Breadcrumb -->
+            {% if breadcrumb %}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Главная
+                        </a>
+                    </li>
+                    {% for folder in breadcrumb %}
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index', folder=folder.id) }}">{{ folder.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </nav>
+            {% endif %}
+            
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">
+                    {% if current_folder_id == 0 %}
+                        <i class="fas fa-home me-2"></i>Мои файлы
+                    {% else %}
+                        <i class="fas fa-folder me-2"></i>{{ breadcrumb[-1].name if breadcrumb else 'Папка' }}
+                    {% endif %}
+                </h4>
+                <div class="d-flex align-items-center">
+                    <!-- View Mode Toggle -->
+                    <div class="btn-group btn-group-sm me-3" role="group" aria-label="Режим отображения">
+                        <button type="button" class="btn btn-view-toggle" id="tileView" onclick="setViewMode('tile')">
+                            <i class="fas fa-th-large me-1"></i>Плитка
+                        </button>
+                        <button type="button" class="btn btn-view-toggle" id="tableView" onclick="setViewMode('table')">
+                            <i class="fas fa-list me-1"></i>Таблица
+                        </button>
+                    </div>
+                    <a href="{{ url_for('upload_file', folder=current_folder_id) }}" class="btn btn-primary me-2">
+                        <i class="fas fa-upload me-1"></i>Загрузить
+                    </a>
+                    <a href="{{ url_for('create_folder', parent=current_folder_id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-folder-plus me-1"></i>Новая папка
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Back Button -->
+            {% if breadcrumb %}
+            <div class="mb-3">
+                <a href="{{ url_for('index', folder=breadcrumb[-2].id if breadcrumb|length > 1 else 0) }}" class="btn btn-back btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Назад
+                </a>
+            </div>
+            {% endif %}
+            
+
+
+            <!-- Combined Files and Folders List -->
+            {% if folders or files %}
+            <div id="fileList">
+                <!-- Tile View -->
+                <div id="tileViewContent" class="view-content">
+                    <div class="row">
+                        <!-- Корневая папка для перетаскивания -->
+
+                        {% for folder in folders %}
+                        <div class="col-md-4 col-lg-3 mb-3">
+                            <div class="item-card folder-item" 
+                                 ondblclick="openFolder({{ folder.id }})"
+                                 oncontextmenu="showContextMenu(event, 'folder', {{ folder.id }}, '{{ folder.name }}')"
+                                 style="cursor: pointer;"
+                                 title="Двойной клик для открытия папки, правый клик для меню">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="file-thumbnail-placeholder">
+                                        <i class="fas fa-folder text-warning"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ folder.name }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% for file in files %}
+                        <div class="col-md-4 col-lg-3 mb-3">
+                            <div class="item-card file-item" 
+                                 oncontextmenu="showContextMenu(event, 'file', {{ file.id }}, '{{ file.original_filename }}', '{{ file.public_url if file.public_url else '' }}')"
+                                 ondblclick="{% if file.mime_type.startswith('image/') %}openImageViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/pdf') %}openPdfViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}openDocumentViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('text/') %}openTextViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% else %}window.location.href='/file/{{ file.id }}'{% endif %}"
+                                 title="{% if file.mime_type.startswith('image/') %}Двойной клик для просмотра, правый клик для меню{% elif file.mime_type.startswith('application/pdf') %}Двойной клик для просмотра PDF, правый клик для меню{% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}Двойной клик для информации о документе, правый клик для меню{% elif file.mime_type.startswith('text/') %}Двойной клик для просмотра текста, правый клик для меню{% else %}Правый клик для меню действий{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if file.mime_type.startswith('image/') %}
+                                        <img src="/file/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="file-thumbnail-placeholder" style="display: none;">
+                                            <i class="fas fa-image text-success"></i>
+                                        </div>
+                                    {% elif file.mime_type.startswith('video/') %}
+                                        <div class="file-thumbnail-placeholder">
+                                            <i class="fas fa-video text-danger"></i>
+                                        </div>
+                                    {% elif file.mime_type.startswith('audio/') %}
+                                        <div class="file-thumbnail-placeholder">
+                                            <i class="fas fa-music text-info"></i>
+                                        </div>
+                                    {% elif file.mime_type.startswith('text/') %}
+                                        <div class="file-thumbnail-placeholder">
+                                            <i class="fas fa-file-alt text-primary"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="file-thumbnail-placeholder">
+                                            <i class="fas fa-file text-secondary"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" title="{{ file.original_filename }}">
+                                        {{ file.original_filename[:20] }}{% if file.original_filename|length > 20 %}...{% endif %}
+                                    </h6>
+                                    <small class="text-muted">
+                                        {{ file.get_file_size_formatted() }}
+                                    </small>
+                                    {% if file.is_public %}
+                                    <div class="mt-1">
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-globe me-1"></i>Публичный
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Table View -->
+                <div id="tableViewContent" class="view-content" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;"></th>
+                                    <th>Название</th>
+                                    <th>Тип</th>
+                                    <th>Размер</th>
+                                    <th>Дата создания</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                
+                                {% for folder in folders %}
+                                <tr class="folder-item" 
+                                    ondblclick="openFolder({{ folder.id }})" 
+                                    oncontextmenu="showContextMenu(event, 'folder', {{ folder.id }}, '{{ folder.name }}')"
+                                    style="cursor: pointer;"
+                                    title="Двойной клик для открытия папки, правый клик для меню">
+                                    <td>
+                                        <div class="file-thumbnail-placeholder">
+                                            <i class="fas fa-folder text-warning"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span>{{ folder.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-warning">Папка</span></td>
+                                    <td>-</td>
+                                    <td>{{ folder.created_at.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                                
+                                {% for file in files %}
+                                <tr oncontextmenu="showContextMenu(event, 'file', {{ file.id }}, '{{ file.original_filename }}', '{{ file.public_url if file.public_url else '' }}')"
+                                    ondblclick="{% if file.mime_type.startswith('image/') %}openImageViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/pdf') %}openPdfViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}openDocumentViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('text/') %}openTextViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% else %}window.location.href='/file/{{ file.id }}'{% endif %}"
+                                    title="{% if file.mime_type.startswith('image/') %}Двойной клик для просмотра, правый клик для меню{% elif file.mime_type.startswith('application/pdf') %}Двойной клик для просмотра PDF, правый клик для меню{% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}Двойной клик для информации о документе, правый клик для меню{% elif file.mime_type.startswith('text/') %}Двойной клик для просмотра текста, правый клик для меню{% else %}Правый клик для меню действий{% endif %}"
+                                    style="cursor: pointer;">
+                                    <td>
+                                        {% if file.mime_type.startswith('image/') %}
+                                            <img src="/file/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="file-thumbnail-placeholder" style="display: none;">
+                                                <i class="fas fa-image text-success"></i>
+                                            </div>
+                                        {% elif file.mime_type.startswith('video/') %}
+                                            <div class="file-thumbnail-placeholder">
+                                                <i class="fas fa-video text-danger"></i>
+                                            </div>
+                                        {% elif file.mime_type.startswith('audio/') %}
+                                            <div class="file-thumbnail-placeholder">
+                                                <i class="fas fa-music text-info"></i>
+                                            </div>
+                                        {% elif file.mime_type.startswith('text/') %}
+                                            <div class="file-thumbnail-placeholder">
+                                                <i class="fas fa-file-alt text-primary"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="file-thumbnail-placeholder">
+                                                <i class="fas fa-file text-secondary"></i>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span title="{{ file.original_filename }}">{{ file.original_filename }}</span>
+                                            {% if file.is_public %}
+                                                <span class="badge bg-success ms-2">
+                                                    <i class="fas fa-globe me-1"></i>Публичный
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if file.mime_type.startswith('image/') %}
+                                            <span class="badge bg-success">Изображение</span>
+                                        {% elif file.mime_type.startswith('video/') %}
+                                            <span class="badge bg-danger">Видео</span>
+                                        {% elif file.mime_type.startswith('audio/') %}
+                                            <span class="badge bg-info">Аудио</span>
+                                        {% elif file.mime_type.startswith('text/') %}
+                                            <span class="badge bg-primary">Текст</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Файл</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ file.get_file_size_formatted() }}</td>
+                                    <td>{{ file.created_at.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">Папка пуста</h5>
+                <p class="text-muted">Загрузите файлы или создайте папки для начала работы</p>
+                <div class="mt-3">
+                    <a href="{{ url_for('upload_file', folder=current_folder_id) }}" class="btn btn-primary me-2">
+                        <i class="fas fa-upload me-1"></i>Загрузить файл
+                    </a>
+                    <a href="{{ url_for('create_folder', parent=current_folder_id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-folder-plus me-1"></i>Создать папку
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Context Menu -->
+<div id="contextMenu" class="context-menu" style="display: none;">
+    <div class="context-menu-item" id="contextOpen">
+        <i class="fas fa-folder-open me-2"></i>Открыть
+    </div>
+    <div class="context-menu-item" id="contextView">
+        <i class="fas fa-eye me-2"></i>Просмотр
+    </div>
+    <div class="context-menu-item" id="contextDownload">
+        <i class="fas fa-download me-2"></i>Скачать
+    </div>
+    <div class="context-menu-item" id="contextPublicLink">
+        <i class="fas fa-external-link-alt me-2"></i>Публичная ссылка
+    </div>
+    <div class="context-menu-item" id="contextTogglePublic">
+        <i class="fas fa-globe me-2"></i>Сделать публичным
+    </div>
+    <div class="context-menu-item" id="contextRename">
+        <i class="fas fa-edit me-2"></i>Переименовать
+    </div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item text-danger" id="contextDelete">
+        <i class="fas fa-trash me-2"></i>Удалить
+    </div>
+</div>
+
+<!-- Image Viewer Modal -->
+<div class="modal fade" id="imageViewerModal" tabindex="-1" aria-labelledby="imageViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageViewerModalLabel">
+                    <i class="fas fa-image me-2"></i>Просмотр изображения
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="image-container">
+                    <img id="imageViewerImg" src="" alt="Изображение" class="img-fluid" style="max-height: 70vh; max-width: 100%;">
+                </div>
+                <div class="image-info mt-3">
+                    <p class="text-muted mb-1" id="imageFileName"></p>
+                    <p class="text-muted mb-0" id="imageFileSize"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="downloadImageBtn" target="_blank">
+                    <i class="fas fa-download me-1"></i>Скачать
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PDF Viewer Modal -->
+<div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfViewerModalLabel">
+                    <i class="fas fa-file-pdf me-2"></i>Просмотр PDF
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="pdf-container">
+                    <iframe id="pdfViewerFrame" src="" width="100%" height="85vh" frameborder="0"></iframe>
+                </div>
+                <div class="pdf-info mt-3 text-center">
+                    <p class="text-muted mb-1" id="pdfFileName"></p>
+                    <p class="text-muted mb-0" id="pdfFileSize"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="downloadPdfBtn" target="_blank">
+                    <i class="fas fa-download me-1"></i>Скачать
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="modal fade" id="documentViewerModal" tabindex="-1" aria-labelledby="documentViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentViewerModalLabel">
+                    <i class="fas fa-file-alt me-2"></i>Просмотр документа
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="document-container">
+                    <iframe id="documentViewerFrame" src="" width="100%" height="70vh" frameborder="0" style="display: none;"></iframe>
+                </div>
+                <div class="document-info mt-3 text-center">
+                    <p class="text-muted mb-1" id="documentFileName"></p>
+                    <p class="text-muted mb-0" id="documentFileSize"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="downloadDocumentBtn" target="_blank">
+                    <i class="fas fa-download me-1"></i>Скачать
+                </a>
+                <a href="#" class="btn btn-outline-primary" id="openDocumentBtn" target="_blank">
+                    <i class="fas fa-external-link-alt me-1"></i>Открыть в новом окне
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Text Viewer Modal -->
+<div class="modal fade" id="textViewerModal" tabindex="-1" aria-labelledby="textViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="textViewerModalLabel">
+                    <i class="fas fa-file-alt me-2"></i>Просмотр текста
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-container">
+                    <pre id="textViewerContent" class="text-content"></pre>
+                </div>
+                <div class="text-info mt-3 text-center">
+                    <p class="text-muted mb-1" id="textFileName"></p>
+                    <p class="text-muted mb-0" id="textFileSize"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="downloadTextBtn" target="_blank">
+                    <i class="fas fa-download me-1"></i>Скачать
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Public Link Modal -->
+<div class="modal fade" id="publicLinkModal" tabindex="-1" aria-labelledby="publicLinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publicLinkModalLabel">
+                    <i class="fas fa-globe me-2"></i>Публичная ссылка
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Скопируйте эту ссылку, чтобы поделиться файлом с другими людьми:</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="publicLinkInput" readonly>
+                    <button class="btn btn-outline-primary" type="button" onclick="copyPublicLink()">
+                        <i class="fas fa-copy me-1"></i>Копировать
+                    </button>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Файл будет доступен всем, у кого есть эта ссылка
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="openPublicLink" target="_blank">
+                    <i class="fas fa-external-link-alt me-1"></i>Открыть ссылку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel">
+                    <i class="fas fa-edit me-2"></i>Переименовать
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="renameForm">
+                    <div class="mb-3">
+                        <label for="newName" class="form-label">Новое название:</label>
+                        <input type="text" class="form-control" id="newName" required>
+                        <div class="form-text">Введите новое название для <span id="itemTypeText"></span></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="performRename()">
+                    <i class="fas fa-save me-1"></i>Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Folder Confirmation Modal -->
+<div class="modal fade" id="deleteFolderModal" tabindex="-1" aria-labelledby="deleteFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteFolderModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Удаление папки
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Внимание!</strong> Эта папка содержит файлы и/или подпапки, которые будут удалены вместе с ней.
+                </div>
+                <p>Вы действительно хотите удалить папку <strong id="folderNameToDelete"></strong>?</p>
+                <div id="folderContentsInfo" class="mb-3">
+                    <p class="text-muted mb-2">Содержимое папки:</p>
+                    <ul class="list-unstyled">
+                        <li id="filesCount"></li>
+                        <li id="subfoldersCount"></li>
+                    </ul>
+                </div>
+                <div class="alert alert-danger">
+                    <i class="fas fa-trash me-2"></i>
+                    <strong>Это действие нельзя отменить!</strong> Все файлы и подпапки будут безвозвратно удалены.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteFolderBtn">
+                    <i class="fas fa-trash me-1"></i>Удалить папку и всё содержимое
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Move Confirmation Modal -->
+<div class="modal fade" id="moveConfirmModal" tabindex="-1" aria-labelledby="moveConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveConfirmModalLabel">
+                    <i class="fas fa-arrows-alt me-2"></i>Перемещение
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="moveConfirmText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="confirmMoveBtn">
+                    <i class="fas fa-check me-1"></i>Подтвердить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+/* Стили для карточек элементов */
+.item-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: white;
+    transition: all 0.2s ease;
+    height: 100%;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Стили для текста в плитках */
+.item-card h6 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    margin-bottom: 0.25rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.item-card .text-muted {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    font-size: 0.875rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.item-card .flex-grow-1 {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.item-card:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.folder-item {
+    border-left: 4px solid #ffc107;
+}
+
+.file-item {
+    border-left: 4px solid #0d6efd;
+}
+
+/* Стили для табличного представления */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+}
+
+body.dark-theme .table th {
+    background-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+body.dark-theme .table td {
+    color: var(--text-dark);
+}
+
+/* Активные кнопки переключения режимов */
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.btn-group .btn:not(.active) {
+    background-color: transparent;
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-group .btn:not(.active):hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+/* Контекстное меню */
+.context-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 200px;
+    padding: 0.5rem 0;
+}
+
+body.dark-theme .context-menu {
+    background: var(--bg-dark);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+.context-menu-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: var(--text-light);
+}
+
+body.dark-theme .context-menu-item {
+    color: var(--text-dark);
+}
+
+.context-menu-item:hover {
+    background-color: var(--border-light);
+}
+
+body.dark-theme .context-menu-item:hover {
+    background-color: var(--border-dark);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background-color: var(--border-light);
+    margin: 0.5rem 0;
+}
+
+body.dark-theme .context-menu-divider {
+    background-color: var(--border-dark);
+}
+
+/* Стили для кнопки возврата */
+.breadcrumb .btn {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+}
+
+/* Стили для sidebar */
+.sidebar {
+    background: white;
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .sidebar {
+    background: var(--bg-dark);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+/* Стили для статистики */
+.stats-card {
+    background: white;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+}
+
+body.dark-theme .stats-card {
+    background: var(--bg-dark);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+/* Стили для breadcrumb */
+.breadcrumb {
+    background: transparent;
+}
+
+body.dark-theme .breadcrumb {
+    color: var(--text-dark);
+}
+
+.breadcrumb-item a {
+    color: var(--cyan-glow);
+}
+
+body.dark-theme .breadcrumb-item a {
+    color: var(--cyan-glow);
+}
+
+/* Стили для просмотрщика изображений */
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    background: var(--border-light);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+body.dark-theme .image-container {
+    background: var(--border-dark);
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.image-info {
+    background: var(--border-light);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .image-info {
+    background: var(--border-dark);
+    border-color: var(--border-dark);
+}
+
+.image-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Стили для модальных окон */
+.modal-content {
+    background: white;
+    color: var(--text-light);
+}
+
+body.dark-theme .modal-content {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-light);
+}
+
+body.dark-theme .modal-header {
+    border-bottom-color: var(--border-dark);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-light);
+}
+
+body.dark-theme .modal-footer {
+    border-top-color: var(--border-dark);
+}
+
+/* Стили для алертов */
+.alert {
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .alert {
+    border-color: var(--border-dark);
+}
+
+/* Стили для просмотрщика PDF */
+.pdf-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    background: var(--border-light);
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+}
+
+body.dark-theme .pdf-container {
+    background: var(--border-dark);
+}
+
+.pdf-container iframe {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 100% !important;
+    height: 85vh !important;
+    min-width: 100%;
+    min-height: 85vh;
+}
+
+.pdf-info {
+    background: var(--border-light);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .pdf-info {
+    background: var(--border-dark);
+    border-color: var(--border-dark);
+}
+
+/* Стили для просмотрщика документов */
+.document-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    background: var(--border-light);
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+}
+
+body.dark-theme .document-container {
+    background: var(--border-dark);
+}
+
+.document-container iframe {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 100% !important;
+    height: 70vh !important;
+    min-width: 100%;
+    min-height: 70vh;
+}
+
+.document-container .text-center {
+    width: 100%;
+}
+
+.document-container .text-center h5 {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+body.dark-theme .document-container .text-center h5 {
+    color: var(--text-dark);
+}
+
+.document-container .text-center p {
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+body.dark-theme .document-container .text-center p {
+    color: var(--text-dark);
+}
+
+.document-container .text-center .fa-3x {
+    color: var(--inactive);
+}
+
+.document-info {
+    background: var(--border-light);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .document-info {
+    background: var(--border-dark);
+    border-color: var(--border-dark);
+}
+
+/* Стили для просмотрщика текста */
+.text-container {
+    max-height: 60vh;
+    overflow: auto;
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+body.dark-theme .text-container {
+    background: var(--bg-dark);
+    border-color: var(--border-dark);
+}
+
+.text-content {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-light);
+    background: transparent;
+    border: none;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+body.dark-theme .text-content {
+    color: var(--text-dark);
+}
+
+.text-info {
+    background: var(--border-light);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+body.dark-theme .text-info {
+    background: var(--border-dark);
+    border-color: var(--border-dark);
+}
+
+
+
+
+
+
+</style>
+
+<script>
+// Проверка загрузки необходимых библиотек
+console.log('=== SCRIPT LOADING ===');
+console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+console.log('jQuery available:', typeof $ !== 'undefined');
+
+// Функция для переключения режима отображения
+function setViewMode(mode) {
+    console.log('Setting view mode:', mode);
+    
+    const tileView = document.getElementById('tileView');
+    const tableView = document.getElementById('tableView');
+    const tileContent = document.getElementById('tileViewContent');
+    const tableContent = document.getElementById('tableViewContent');
+    
+    if (!tileView || !tableView || !tileContent || !tableContent) {
+        console.error('View mode elements not found:', {
+            tileView: !!tileView,
+            tableView: !!tableView,
+            tileContent: !!tileContent,
+            tableContent: !!tableContent
+        });
+        return;
+    }
+    
+    // Убираем активный класс со всех кнопок
+    tileView.classList.remove('active');
+    tableView.classList.remove('active');
+    
+    // Скрываем все контенты
+    tileContent.style.display = 'none';
+    tableContent.style.display = 'none';
+    
+    if (mode === 'tile') {
+        tileView.classList.add('active');
+        tileContent.style.display = 'block';
+        localStorage.setItem('viewMode', 'tile');
+        console.log('Tile view activated');
+    } else if (mode === 'table') {
+        tableView.classList.add('active');
+        tableContent.style.display = 'block';
+        localStorage.setItem('viewMode', 'table');
+        console.log('Table view activated');
+    }
+}
+
+// Функция для открытия папки
+function openFolder(folderId) {
+    if (folderId === 0) {
+        window.location.href = '/';
+    } else {
+        window.location.href = `/?folder=${folderId}`;
+    }
+}
+
+// Переменные для контекстного меню
+let currentContextType = '';
+let currentContextId = 0;
+let currentContextName = '';
+let currentContextPublicUrl = '';
+
+// Функция для показа контекстного меню
+function showContextMenu(event, type, id, name, publicUrl = '') {
+    event.preventDefault();
+    
+    currentContextType = type;
+    currentContextId = id;
+    currentContextName = name;
+    currentContextPublicUrl = publicUrl;
+    
+    const contextMenu = document.getElementById('contextMenu');
+    const contextOpen = document.getElementById('contextOpen');
+    const contextView = document.getElementById('contextView');
+    const contextDownload = document.getElementById('contextDownload');
+    const contextPublicLink = document.getElementById('contextPublicLink');
+    const contextTogglePublic = document.getElementById('contextTogglePublic');
+    const contextDelete = document.getElementById('contextDelete');
+    
+    // Показываем/скрываем элементы в зависимости от типа
+    if (type === 'folder') {
+        contextOpen.style.display = 'block';
+        contextView.style.display = 'none';
+        contextDownload.style.display = 'none';
+        contextPublicLink.style.display = 'none';
+        contextTogglePublic.style.display = 'none';
+        contextOpen.innerHTML = '<i class="fas fa-folder-open me-2"></i>Открыть';
+    } else {
+        contextOpen.style.display = 'none';
+        contextDownload.style.display = 'block';
+        
+        // Проверяем, поддерживается ли просмотр файла
+        const isImage = currentContextName.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i);
+        const isPdf = currentContextName.match(/\.pdf$/i);
+        const isDocument = currentContextName.match(/\.(doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp)$/i);
+        const isText = currentContextName.match(/\.(txt|md|html|css|js|py|java|cpp|c|h|json|xml|log)$/i);
+        
+        if (isImage || isPdf || isDocument || isText) {
+            contextView.style.display = 'block';
+            if (isImage) {
+                contextView.innerHTML = '<i class="fas fa-eye me-2"></i>Просмотр изображения';
+            } else if (isPdf) {
+                contextView.innerHTML = '<i class="fas fa-eye me-2"></i>Просмотр PDF';
+            } else if (isDocument) {
+                contextView.innerHTML = '<i class="fas fa-eye me-2"></i>Просмотр в OnlyOffice';
+            } else if (isText) {
+                contextView.innerHTML = '<i class="fas fa-eye me-2"></i>Просмотр текста';
+            }
+        } else {
+            contextView.style.display = 'none';
+        }
+        
+        // Показываем публичную ссылку только если файл публичный
+        contextPublicLink.style.display = currentContextPublicUrl ? 'block' : 'none';
+        // Показываем кнопку управления публичным доступом
+        contextTogglePublic.style.display = 'block';
+        if (currentContextPublicUrl) {
+            contextTogglePublic.innerHTML = '<i class="fas fa-lock me-2"></i>Сделать приватным';
+            contextTogglePublic.className = 'context-menu-item text-warning';
+        } else {
+            contextTogglePublic.innerHTML = '<i class="fas fa-globe me-2"></i>Сделать публичным';
+            contextTogglePublic.className = 'context-menu-item';
+        }
+    }
+    
+    // Позиционируем меню
+    contextMenu.style.left = event.pageX + 'px';
+    contextMenu.style.top = event.pageY + 'px';
+    contextMenu.style.display = 'block';
+    
+    // Добавляем обработчики событий
+    contextOpen.onclick = () => handleContextAction('open');
+    contextView.onclick = () => handleContextAction('view');
+    contextDownload.onclick = () => handleContextAction('download');
+    contextPublicLink.onclick = () => handleContextAction('publicLink');
+    contextTogglePublic.onclick = () => handleContextAction('togglePublic');
+    contextRename.onclick = () => handleContextAction('rename');
+    contextDelete.onclick = () => handleContextAction('delete');
+}
+
+// Функция для обработки действий контекстного меню
+function handleContextAction(action) {
+    const contextMenu = document.getElementById('contextMenu');
+    contextMenu.style.display = 'none';
+    
+    switch (action) {
+        case 'open':
+            if (currentContextType === 'folder') {
+                openFolder(currentContextId);
+            }
+            break;
+        case 'view':
+            if (currentContextType === 'file') {
+                // Проверяем тип файла и открываем соответствующий просмотрщик
+                const isImage = currentContextName.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i);
+                const isPdf = currentContextName.match(/\.pdf$/i);
+                const isDocument = currentContextName.match(/\.(doc|docx|xls|xlsx|ppt|pptx|odt|ods|odp)$/i);
+                const isText = currentContextName.match(/\.(txt|md|html|css|js|py|java|cpp|c|h|json|xml|log)$/i);
+                
+                if (isImage) {
+                    openImageViewer(currentContextId, currentContextName, '');
+                } else if (isPdf) {
+                    openPdfViewer(currentContextId, currentContextName, '');
+                } else if (isDocument) {
+                    openDocumentViewer(currentContextId, currentContextName, '');
+                } else if (isText) {
+                    openTextViewer(currentContextId, currentContextName, '');
+                }
+            }
+            break;
+        case 'download':
+            if (currentContextType === 'file') {
+                window.location.href = `/file/${currentContextId}`;
+            }
+            break;
+        case 'publicLink':
+            if (currentContextType === 'file' && currentContextPublicUrl) {
+                // Показываем модальное окно с публичной ссылкой
+                showPublicLinkModal(currentContextPublicUrl);
+            }
+            break;
+        case 'togglePublic':
+            if (currentContextType === 'file') {
+                handleTogglePublic(currentContextId, currentContextPublicUrl);
+            }
+            break;
+        case 'rename':
+            showRenameModal();
+            break;
+        case 'delete':
+            if (currentContextType === 'folder') {
+                // Показываем модальное окно для удаления папки
+                showDeleteFolderModal(currentContextId, currentContextName);
+            } else {
+                // Удаление файла
+                if (confirm(`Удалить файл "${currentContextName}"?`)) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/file/${currentContextId}/delete`;
+                    
+                    // Добавляем CSRF токен
+                    const csrfField = document.createElement('input');
+                    csrfField.type = 'hidden';
+                    csrfField.name = 'csrf_token';
+                    csrfField.value = '{{ csrf_token }}' || '';
+                    form.appendChild(csrfField);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+            break;
+    }
+}
+
+// Функция для управления публичным доступом к файлу
+function handleTogglePublic(fileId, currentPublicUrl) {
+    const isCurrentlyPublic = !!currentPublicUrl;
+    const action = isCurrentlyPublic ? 'Сделать приватным' : 'Сделать публичным';
+    
+    if (confirm(`${action} файл?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/file/${fileId}/toggle_public`;
+        
+        // Добавляем CSRF токен
+        const csrfField = document.createElement('input');
+        csrfField.type = 'hidden';
+        csrfField.name = 'csrf_token';
+        csrfField.value = '{{ csrf_token }}' || '';
+        form.appendChild(csrfField);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Функция для показа модального окна с публичной ссылкой
+function showPublicLinkModal(publicUrl) {
+    const modal = new bootstrap.Modal(document.getElementById('publicLinkModal'));
+    const linkInput = document.getElementById('publicLinkInput');
+    const openLinkBtn = document.getElementById('openPublicLink');
+    
+    // Формируем полный URL
+    const fullUrl = `${window.location.origin}/public/${publicUrl}`;
+    
+    // Устанавливаем ссылку в поле ввода
+    linkInput.value = fullUrl;
+    
+    // Устанавливаем ссылку для кнопки "Открыть ссылку"
+    openLinkBtn.href = fullUrl;
+    
+    // Показываем модальное окно
+    modal.show();
+}
+
+// Функция для показа модального окна удаления папки
+function showDeleteFolderModal(folderId, folderName) {
+    // Получаем информацию о содержимом папки
+    fetch(`/api/folder/${folderId}/contents`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const modal = new bootstrap.Modal(document.getElementById('deleteFolderModal'));
+                
+                // Заполняем информацию о папке
+                document.getElementById('folderNameToDelete').textContent = folderName;
+                
+                if (data.files_count > 0 || data.subfolders_count > 0) {
+                    // Папка содержит файлы или подпапки
+                    const filesCount = document.getElementById('filesCount');
+                    const subfoldersCount = document.getElementById('subfoldersCount');
+                    const folderContentsInfo = document.getElementById('folderContentsInfo');
+                    const warningAlert = document.querySelector('#deleteFolderModal .alert-warning');
+                    const dangerAlert = document.querySelector('#deleteFolderModal .alert-danger');
+                    
+                    // Показываем информацию о содержимом
+                    filesCount.innerHTML = `<i class="fas fa-file me-2"></i>Файлов: <strong>${data.files_count}</strong>`;
+                    subfoldersCount.innerHTML = `<i class="fas fa-folder me-2"></i>Подпапок: <strong>${data.subfolders_count}</strong>`;
+                    folderContentsInfo.style.display = 'block';
+                    warningAlert.style.display = 'block';
+                    dangerAlert.style.display = 'block';
+                    
+                    // Обновляем текст кнопки
+                    document.getElementById('confirmDeleteFolderBtn').innerHTML = '<i class="fas fa-trash me-1"></i>Удалить папку и всё содержимое';
+                } else {
+                    // Пустая папка
+                    const folderContentsInfo = document.getElementById('folderContentsInfo');
+                    const warningAlert = document.querySelector('#deleteFolderModal .alert-warning');
+                    const dangerAlert = document.querySelector('#deleteFolderModal .alert-danger');
+                    
+                    // Скрываем информацию о содержимом и предупреждения
+                    folderContentsInfo.style.display = 'none';
+                    warningAlert.style.display = 'none';
+                    dangerAlert.style.display = 'none';
+                    
+                    // Обновляем текст кнопки
+                    document.getElementById('confirmDeleteFolderBtn').innerHTML = '<i class="fas fa-trash me-1"></i>Удалить папку';
+                }
+                
+                // Обработчик кнопки подтверждения
+                document.getElementById('confirmDeleteFolderBtn').onclick = function() {
+                    deleteFolder(folderId);
+                    modal.hide();
+                };
+                
+                // Показываем модальное окно
+                modal.show();
+            } else {
+                // Если не удалось получить информацию, показываем простое подтверждение
+                if (confirm(`Удалить папку "${folderName}"?`)) {
+                    deleteFolder(folderId);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при получении информации о папке:', error);
+            // Fallback: показываем простое подтверждение
+            if (confirm(`Удалить папку "${folderName}"?`)) {
+                deleteFolder(folderId);
+            }
+        });
+}
+
+// Функция для удаления папки
+function deleteFolder(folderId) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/folder/${folderId}/delete`;
+    
+    // Добавляем CSRF токен
+    const csrfField = document.createElement('input');
+    csrfField.type = 'hidden';
+    csrfField.name = 'csrf_token';
+    csrfField.value = '{{ csrf_token }}' || '';
+    form.appendChild(csrfField);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+
+// Функция для копирования публичной ссылки
+function copyPublicLink() {
+    const linkInput = document.getElementById('publicLinkInput');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999); // Для мобильных устройств
+    
+    try {
+        document.execCommand('copy');
+        // Показываем уведомление об успешном копировании
+        const copyBtn = event.target;
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Скопировано!';
+        copyBtn.className = 'btn btn-success';
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalText;
+            copyBtn.className = 'btn btn-outline-primary';
+        }, 2000);
+    } catch (err) {
+        console.error('Ошибка при копировании: ', err);
+        // Fallback для современных браузеров
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                const copyBtn = event.target;
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Скопировано!';
+                copyBtn.className = 'btn btn-success';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.className = 'btn btn-outline-primary';
+                }, 2000);
+            });
+        }
+    }
+}
+
+// Скрываем контекстное меню при клике вне его
+document.addEventListener('click', function() {
+    const contextMenu = document.getElementById('contextMenu');
+    contextMenu.style.display = 'none';
+});
+
+// Скрываем контекстное меню при нажатии Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const contextMenu = document.getElementById('contextMenu');
+        contextMenu.style.display = 'none';
+    }
+});
+
+
+
+
+
+
+
+// Обработчик сброса элемента
+function handleDrop(event, targetType, targetId) {
+    console.log('=== DROP EVENT ===');
+    console.log('Target type:', targetType);
+    console.log('Target ID:', targetId);
+    console.log('Dragged element:', draggedElement);
+    console.log('Dragged type:', draggedType);
+    console.log('Dragged name:', draggedName);
+    
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Проверяем, что у нас есть данные о перетаскиваемом элементе
+    if (!draggedType || !draggedId || !draggedName) {
+        console.error('No drag data available');
+        return;
+    }
+    
+    const dropZone = event.currentTarget;
+    if (dropZone) {
+        dropZone.classList.remove('drag-over');
+        console.log('Removed drag-over class from drop zone');
+    }
+    
+    if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+        console.log('Removed dragging class from dragged element');
+    }
+    
+    // Получаем название целевой папки
+    let targetName = '';
+    if (targetId === 0) {
+        targetName = 'Корневая папка';
+    } else if (targetType === 'folder') {
+        // Ищем название папки по ID
+        const folderElement = document.querySelector(`[data-type="folder"][data-id="${targetId}"]`);
+        if (folderElement) {
+            targetName = folderElement.getAttribute('data-name');
+        } else {
+            targetName = 'папку';
+        }
+    }
+    
+    console.log('Target name:', targetName);
+    
+    // Проверяем, что перетаскиваемый элемент не является целевой папкой
+    if (draggedId === targetId && draggedType === 'folder') {
+        console.log('Cannot drop folder into itself');
+        alert('Нельзя переместить папку в саму себя');
+        return;
+    }
+    
+    // Проверяем, что не пытаемся переместить папку в её подпапку
+    if (draggedType === 'folder' && targetId !== 0) {
+        let current = targetId;
+        let depth = 0;
+        const maxDepth = 10; // Защита от бесконечного цикла
+        
+        while (current && depth < maxDepth) {
+            const targetFolder = document.querySelector(`[data-type="folder"][data-id="${current}"]`);
+            if (!targetFolder) break;
+            
+            const parentId = targetFolder.getAttribute('data-parent-id');
+            if (parentId === draggedId.toString()) {
+                console.log('Cannot move folder into its subfolder');
+                alert('Нельзя переместить папку в её подпапку');
+                return;
+            }
+            
+            current = parentId === '0' ? 0 : parseInt(parentId);
+            depth++;
+        }
+    }
+    
+    console.log('Showing move confirm modal...');
+    
+    // Показываем модальное окно подтверждения
+    showMoveConfirmModal(draggedType, draggedName, targetName, targetId);
+    
+    console.log('=== DROP EVENT COMPLETE ===');
+}
+
+// Функция показа модального окна подтверждения перемещения
+function showMoveConfirmModal(itemType, itemName, targetName, targetId) {
+    console.log('Showing move confirm modal:', itemType, itemName, targetName, targetId);
+    
+    const modalElement = document.getElementById('moveConfirmModal');
+    if (!modalElement) {
+        console.error('Modal element not found');
+        return;
+    }
+    
+    const modalTitle = document.getElementById('moveConfirmModalLabel');
+    const modalText = document.getElementById('moveConfirmText');
+    const confirmBtn = document.getElementById('confirmMoveBtn');
+    
+    if (!modalTitle || !modalText || !confirmBtn) {
+        console.error('Modal elements not found');
+        return;
+    }
+    
+    // Обновляем заголовок и текст
+    modalTitle.textContent = `Переместить ${itemType === 'folder' ? 'папку' : 'файл'}?`;
+    modalText.textContent = `${itemType === 'folder' ? 'Папка' : 'Файл'} «${itemName}» будет в папке «${targetName}»`;
+    
+    // Обработчик кнопки подтверждения
+    confirmBtn.onclick = function() {
+        console.log('Confirm move clicked');
+        performMove(itemType, draggedId, targetId);
+        // Используем глобальную функцию для скрытия модального окна
+        if (window.hideBootstrapModal) {
+            window.hideBootstrapModal('moveConfirmModal');
+        } else {
+            // Fallback для старых версий Bootstrap
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+    };
+    
+    // Обработчик закрытия модального окна
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        console.log('Modal hidden, resetting variables');
+        // Сбрасываем переменные при закрытии модального окна
+        draggedElement = null;
+        draggedType = '';
+        draggedId = 0;
+        draggedName = '';
+    });
+    
+    // Показываем модальное окно
+    if (window.showBootstrapModal) {
+        window.showBootstrapModal('moveConfirmModal');
+    } else {
+        // Fallback для старых версий Bootstrap
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+// Функция выполнения перемещения
+function performMove(itemType, itemId, targetId) {
+    console.log('=== PERFORMING MOVE ===');
+    console.log('Item type:', itemType);
+    console.log('Item ID:', itemId);
+    console.log('Target ID:', targetId);
+    
+    // Проверяем, что не пытаемся переместить папку в саму себя
+    if (itemType === 'folder' && itemId === targetId) {
+        console.log('Cannot move folder into itself');
+        alert('Нельзя переместить папку в саму себя');
+        return;
+    }
+    
+    // Проверяем, что не пытаемся переместить папку в её подпапку
+    if (itemType === 'folder' && targetId !== 0) {
+        // Проверяем, является ли целевая папка подпапкой текущей
+        let current = targetId;
+        let depth = 0;
+        const maxDepth = 10; // Защита от бесконечного цикла
+        
+        while (current && depth < maxDepth) {
+            const targetFolder = document.querySelector(`[data-type="folder"][data-id="${current}"]`);
+            if (!targetFolder) break;
+            
+            const parentId = targetFolder.getAttribute('data-parent-id');
+            if (parentId === itemId.toString()) {
+                console.log('Cannot move folder into its subfolder');
+                alert('Нельзя переместить папку в её подпапку');
+                return;
+            }
+            
+            current = parentId === '0' ? 0 : parseInt(parentId);
+            depth++;
+        }
+    }
+    
+    console.log('Creating move form...');
+    
+    // Создаем форму для перемещения
+    const form = document.createElement('form');
+    form.method = 'POST';
+    
+    if (itemType === 'folder') {
+        form.action = `/folder/${itemId}/move`;
+        console.log('Form action for folder:', form.action);
+    } else {
+        form.action = `/file/${itemId}/move`;
+        console.log('Form action for file:', form.action);
+    }
+    
+    // Добавляем скрытые поля
+    const targetField = document.createElement('input');
+    targetField.type = 'hidden';
+    targetField.name = 'target_folder_id';
+    targetField.value = targetId;
+    form.appendChild(targetField);
+    
+    const csrfField = document.createElement('input');
+    csrfField.type = 'hidden';
+    csrfField.name = 'csrf_token';
+    csrfField.value = '{{ csrf_token }}' || '';
+    form.appendChild(csrfField);
+    
+    console.log('Form created with fields:', {
+        target_folder_id: targetId,
+        csrf_token: csrfField.value
+    });
+    
+    // Отправляем форму
+    document.body.appendChild(form);
+    console.log('Form appended to body, submitting...');
+    form.submit();
+    
+    console.log('=== MOVE FORM SUBMITTED ===');
+}
+
+// Обработчик окончания перетаскивания
+function handleDragEnd(event) {
+    console.log('=== DRAG END ===');
+    console.log('Event:', event);
+    
+    if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+        console.log('Removed dragging class from dragged element');
+    }
+    
+    // Убираем класс drag-over со всех зон
+    const dragOverElements = document.querySelectorAll('.root-drop-zone.drag-over, .folder-item.drag-over, .file-item.drag-over');
+    dragOverElements.forEach(element => {
+        element.classList.remove('drag-over');
+        console.log('Removed drag-over class from:', element);
+    });
+    
+    // Восстанавливаем состояние всех папок
+    const folderElements = document.querySelectorAll('[data-type="folder"]');
+    folderElements.forEach(folder => {
+        folder.style.pointerEvents = '';
+        folder.style.opacity = '';
+        console.log('Restored folder state:', folder);
+    });
+    
+    // Скрываем зону корневой папки
+    const rootDropZone = document.getElementById('rootDropZone');
+    const rootDropZoneTable = document.getElementById('rootDropZoneTable');
+    
+    if (rootDropZone) {
+        rootDropZone.style.display = 'none';
+        console.log('Hidden root drop zone in tile view');
+    }
+    
+    if (rootDropZoneTable) {
+        rootDropZoneTable.style.display = 'none';
+        console.log('Hidden root drop zone in table view');
+    }
+    
+    // Сбрасываем переменные
+    console.log('Resetting drag variables');
+    draggedElement = null;
+    draggedType = '';
+    draggedId = 0;
+    draggedName = '';
+    
+    console.log('=== DRAG END COMPLETE ===');
+}
+
+// Добавляем обработчики событий для перетаскивания
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOM LOADED ===');
+    console.log('Setting up drag and drop handlers');
+    
+    // Предотвращаем стандартное поведение браузера при перетаскивании
+    document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        console.log('Global dragover prevented');
+    });
+    
+    document.addEventListener('drop', function(e) {
+        e.preventDefault();
+        console.log('Global drop prevented');
+    });
+    
+    // Предотвращаем перетаскивание на пустые области
+    document.addEventListener('dragover', function(e) {
+        // Если перетаскивание происходит над элементом, который не является зоной перетаскивания
+        if (!e.target.closest('.folder-item, .root-drop-zone')) {
+            e.dataTransfer.dropEffect = 'none';
+            console.log('Dragover over empty area, drop effect set to none');
+        }
+    });
+    
+    // Предотвращаем перетаскивание на пустые области в плиточном представлении
+    const fileList = document.getElementById('fileList');
+    if (fileList) {
+        fileList.addEventListener('dragover', function(e) {
+            // Если перетаскивание происходит над пустой областью
+            if (!e.target.closest('.item-card, .table-responsive')) {
+                e.dataTransfer.dropEffect = 'none';
+                console.log('Dragover over empty file list area, drop effect set to none');
+            }
+        });
+        console.log('File list dragover handler added');
+    } else {
+        console.warn('File list element not found');
+    }
+    
+    // Добавляем обработчик dragend для всех перетаскиваемых элементов
+    const draggableElements = document.querySelectorAll('[draggable="true"]');
+    console.log('Found draggable elements:', draggableElements.length);
+    
+    draggableElements.forEach(element => {
+        element.addEventListener('dragend', handleDragEnd);
+        console.log('Added dragend handler to:', element);
+    });
+    
+    // Добавляем обработчики для зон перетаскивания
+    const dropZones = document.querySelectorAll('.folder-item, .root-drop-zone');
+    console.log('Found drop zones:', dropZones.length);
+    
+    dropZones.forEach(zone => {
+        const targetId = zone.getAttribute('data-id') || 0;
+        const targetType = zone.getAttribute('data-type') || 'folder';
+        
+        zone.addEventListener('dragover', handleDragOver);
+        zone.addEventListener('dragleave', handleDragLeave);
+        zone.addEventListener('drop', function(event) {
+            console.log('Drop event on zone:', targetId, targetType);
+            handleDrop(event, targetType, targetId);
+        });
+        
+        console.log('Added drop handlers to zone:', zone, 'ID:', targetId, 'Type:', targetType);
+    });
+    
+    // Предотвращаем перетаскивание на файлы
+    const fileItems = document.querySelectorAll('.file-item');
+    console.log('Found file items:', fileItems.length);
+    
+    fileItems.forEach(file => {
+        file.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'none';
+            console.log('File dragover prevented');
+        });
+        file.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('File drop prevented');
+        });
+    });
+    
+    // Предотвращаем перетаскивание на пустые области таблицы
+    const tableBody = document.querySelector('tbody');
+    if (tableBody) {
+        tableBody.addEventListener('dragover', function(e) {
+            // Если перетаскивание происходит над пустой областью таблицы
+            if (!e.target.closest('tr')) {
+                e.dataTransfer.dropEffect = 'none';
+                console.log('Table body dragover over empty area, drop effect set to none');
+            }
+        });
+        console.log('Table body dragover handler added');
+    } else {
+        console.warn('Table body element not found');
+    }
+    
+    // Предотвращаем перетаскивание на заголовок таблицы
+    const tableHeader = document.querySelector('thead');
+    if (tableHeader) {
+        tableHeader.addEventListener('dragover', function(e) {
+            e.dataTransfer.dropEffect = 'none';
+            console.log('Table header dragover prevented');
+        });
+        console.log('Table header dragover handler added');
+    } else {
+        console.warn('Table header element not found');
+    }
+    
+    // Восстанавливаем выбранный режим
+    const savedMode = localStorage.getItem('viewMode') || 'tile';
+    console.log('Restoring view mode:', savedMode);
+    setViewMode(savedMode);
+    
+    console.log('=== DRAG AND DROP SETUP COMPLETE ===');
+});
+
+// Функция для показа модального окна переименования
+function showRenameModal() {
+    const renameModal = document.getElementById('renameModal');
+    const newNameInput = document.getElementById('newName');
+    const itemTypeText = document.getElementById('itemTypeText');
+    
+    // Устанавливаем текущее название в поле ввода
+    newNameInput.value = currentContextName;
+    
+    // Устанавливаем текст типа элемента
+    if (currentContextType === 'folder') {
+        itemTypeText.textContent = 'папки';
+    } else {
+        itemTypeText.textContent = 'файла';
+    }
+    
+    // Показываем модальное окно
+    const modal = new bootstrap.Modal(renameModal);
+    modal.show();
+    
+    // Фокусируемся на поле ввода и выделяем весь текст
+    setTimeout(() => {
+        newNameInput.focus();
+        newNameInput.select();
+    }, 100);
+}
+
+// Функция для выполнения переименования
+function performRename() {
+    const newName = document.getElementById('newName').value.trim();
+    
+    if (!newName) {
+        alert('Введите новое название');
+        return;
+    }
+    
+    // Создаем форму для переименования
+    const form = document.createElement('form');
+    form.method = 'POST';
+    
+    if (currentContextType === 'folder') {
+        form.action = `/folder/${currentContextId}/rename`;
+    } else {
+        form.action = `/file/${currentContextId}/rename`;
+    }
+    
+    // Добавляем скрытые поля
+    const nameField = document.createElement('input');
+    nameField.type = 'hidden';
+    nameField.name = 'new_name';
+    nameField.value = newName;
+    form.appendChild(nameField);
+    
+    const csrfField = document.createElement('input');
+    csrfField.type = 'hidden';
+    csrfField.name = 'csrf_token';
+    csrfField.value = '{{ csrf_token }}' || '';
+    form.appendChild(csrfField);
+    
+    // Отправляем форму
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Функция для открытия просмотрщика изображений
+function openImageViewer(fileId, fileName, fileSize) {
+    // Устанавливаем изображение в модальном окне
+    const imageViewerImg = document.getElementById('imageViewerImg');
+    const imageFileName = document.getElementById('imageFileName');
+    const imageFileSize = document.getElementById('imageFileSize');
+    const downloadImageBtn = document.getElementById('downloadImageBtn');
+    
+    // Устанавливаем источник изображения для просмотра
+    imageViewerImg.src = `/view/${fileId}`;
+    
+    // Добавляем обработчик загрузки для проверки успешности
+    imageViewerImg.onload = function() {
+        console.log('Изображение загружено успешно');
+    };
+    
+    // Устанавливаем информацию о файле
+    imageFileName.textContent = fileName;
+    imageFileSize.textContent = fileSize || '';
+    
+    // Устанавливаем ссылку для скачивания
+    downloadImageBtn.href = `/file/${fileId}`;
+    
+    // Показываем модальное окно
+    const imageViewerModal = new bootstrap.Modal(document.getElementById('imageViewerModal'));
+    imageViewerModal.show();
+}
+
+// Функция для открытия просмотрщика PDF
+function openPdfViewer(fileId, fileName, fileSize) {
+    const pdfViewerFrame = document.getElementById('pdfViewerFrame');
+    const pdfFileName = document.getElementById('pdfFileName');
+    const pdfFileSize = document.getElementById('pdfFileSize');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    
+    // Устанавливаем источник PDF для просмотра
+    pdfViewerFrame.src = `/view/${fileId}`;
+    
+    // Добавляем обработчик загрузки для проверки успешности
+    pdfViewerFrame.onload = function() {
+        try {
+            // Проверяем, загрузился ли PDF успешно
+            if (pdfViewerFrame.contentDocument && pdfViewerFrame.contentDocument.body) {
+                console.log('PDF загружен успешно');
+            }
+        } catch (e) {
+            console.log('PDF не может быть просмотрен:', e);
+            // PDF не может быть просмотрен в iframe, но это нормально для PDF
+        }
+    };
+    
+    // Устанавливаем информацию о файле
+    pdfFileName.textContent = fileName;
+    pdfFileSize.textContent = fileSize || '';
+    
+    // Устанавливаем ссылку для скачивания
+    downloadPdfBtn.href = `/file/${fileId}`;
+    
+    // Показываем модальное окно
+    const pdfViewerModal = new bootstrap.Modal(document.getElementById('pdfViewerModal'));
+    pdfViewerModal.show();
+}
+
+// Функция для открытия просмотрщика документов (Word, Excel, etc.)
+function openDocumentViewer(fileId, fileName, fileSize) {
+    const documentViewerFrame = document.getElementById('documentViewerFrame');
+    const documentFileName = document.getElementById('documentFileName');
+    const documentFileSize = document.getElementById('documentFileSize');
+    const downloadDocumentBtn = document.getElementById('downloadDocumentBtn');
+    const openDocumentBtn = document.getElementById('openDocumentBtn');
+    
+    // Проверяем тип документа
+    const isOfficeDocument = fileName.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i);
+    const isOpenDocument = fileName.match(/\.(odt|ods|odp)$/i);
+    
+    if (isOfficeDocument || isOpenDocument) {
+        // Для Office документов используем облачный просмотрщик
+        documentViewerFrame.style.display = 'block';
+        
+        // Определяем тип документа для выбора подходящего просмотрщика
+        let viewerUrl;
+        const fileUrl = `${window.location.origin}/view/${fileId}`;
+        
+        // Для Office документов показываем сообщение о том, что просмотр не поддерживается
+        // Эти файлы не могут быть просмотрены в браузере
+        documentViewerFrame.style.display = 'none';
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'text-center p-4';
+        messageDiv.innerHTML = `
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <h5>Просмотр документа не поддерживается</h5>
+            <p class="text-muted">Файл "${fileName}" не может быть просмотрен в браузере.</p>
+            <p class="text-muted">Для просмотра скачайте файл и откройте его в соответствующем приложении.</p>
+            <div class="mt-3">
+                <a href="/file/${fileId}" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Скачать файл
+                </a>
+            </div>
+        `;
+        
+        // Удаляем предыдущее сообщение, если оно есть
+        const existingMessage = document.querySelector('.document-container .text-center');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        document.querySelector('.document-container').appendChild(messageDiv);
+    } else {
+        // Для других типов документов показываем iframe
+        documentViewerFrame.style.display = 'block';
+        documentViewerFrame.src = `/view/${fileId}`;
+        
+        // Удаляем сообщение, если оно есть
+        const existingMessage = document.querySelector('.document-container .text-center');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+    }
+    
+    // Устанавливаем информацию о файле
+    documentFileName.textContent = fileName;
+    documentFileSize.textContent = fileSize || '';
+    
+    // Устанавливаем ссылки
+    downloadDocumentBtn.href = `/file/${fileId}`;
+    openDocumentBtn.href = `/file/${fileId}`;
+    
+    // Показываем модальное окно
+    const documentViewerModal = new bootstrap.Modal(document.getElementById('documentViewerModal'));
+    documentViewerModal.show();
+}
+
+// Функция для открытия просмотрщика текстовых файлов
+function openTextViewer(fileId, fileName, fileSize) {
+    const textViewerContent = document.getElementById('textViewerContent');
+    const textFileName = document.getElementById('textFileName');
+    const textFileSize = document.getElementById('textFileSize');
+    const downloadTextBtn = document.getElementById('downloadTextBtn');
+    
+    // Загружаем содержимое текстового файла для просмотра
+    fetch(`/view/${fileId}`)
+        .then(response => response.text())
+        .then(content => {
+            textViewerContent.textContent = content;
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки текстового файла:', error);
+            textViewerContent.textContent = 'Ошибка загрузки файла';
+        });
+    
+    // Устанавливаем информацию о файле
+    textFileName.textContent = fileName;
+    textFileSize.textContent = fileSize || '';
+    
+    // Устанавливаем ссылку для скачивания
+    downloadTextBtn.href = `/file/${fileId}`;
+    
+    // Показываем модальное окно
+    const textViewerModal = new bootstrap.Modal(document.getElementById('textViewerModal'));
+    textViewerModal.show();
+}
+
+// Обработчик ошибок загрузки изображения и восстановление режима просмотра
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработчик ошибок загрузки изображения
+    const imageViewerImg = document.getElementById('imageViewerImg');
+    if (imageViewerImg) {
+        imageViewerImg.addEventListener('error', function() {
+            console.error('Ошибка загрузки изображения');
+            // Можно показать сообщение об ошибке пользователю
+        });
+    }
+    
+    // Восстанавливаем выбранный режим при загрузке страницы
+    const savedMode = localStorage.getItem('viewMode') || 'tile';
+    console.log('Setting initial view mode:', savedMode);
+    setViewMode(savedMode);
+});
+</script>
+{% endblock %}
