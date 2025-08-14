@@ -1,0 +1,9 @@
+.env
+__pycache__/app.cpython-312.pyc
+__pycache__/config.cpython-312.pyc
+__pycache__/forms.cpython-312.pyc
+__pycache__/models.cpython-312.pyc
+instance/cloud_storage.db
+static/images/README.md
+/uploads
+/venv
