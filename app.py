@@ -14,6 +14,14 @@ from forms import (
     FolderCreateForm, FileShareForm, SearchForm, SettingsForm, AdminSettingsForm
 )
 
+# Импорт для работы с изображениями
+try:
+    from PIL import Image, ImageOps
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    print("WARNING: PIL/Pillow не установлен. Миниатюры будут отключены.")
+
 def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
@@ -25,7 +33,13 @@ def create_app(config_name='default'):
     # Create upload folder
     upload_folder = os.path.abspath(app.config['UPLOAD_FOLDER'])
     os.makedirs(upload_folder, exist_ok=True)
+    
+    # Create thumbnails folder
+    thumbnails_folder = os.path.abspath(os.path.join(upload_folder, 'thumbnails'))
+    os.makedirs(thumbnails_folder, exist_ok=True)
+    
     print(f"DEBUG: Папка загрузок создана/найдена: {upload_folder}")
+    print(f"DEBUG: Папка миниатюр создана/найдена: {thumbnails_folder}")
     print(f"DEBUG: Содержимое папки: {os.listdir(upload_folder) if os.path.exists(upload_folder) else 'папка не существует'}")
     
     # Initialize Flask-Login
@@ -37,6 +51,52 @@ def create_app(config_name='default'):
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+    
+    def generate_thumbnail(image_path, thumbnail_path, size=(150, 150)):
+        """Генерирует миниатюру изображения"""
+        if not PIL_AVAILABLE:
+            return False
+            
+        try:
+            with Image.open(image_path) as img:
+                # Конвертируем в RGB если изображение в RGBA
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    img = img.convert('RGB')
+                
+                # Создаем миниатюру с сохранением пропорций
+                img.thumbnail(size, Image.Resampling.LANCZOS)
+                
+                # Создаем новое изображение с белым фоном
+                thumbnail = Image.new('RGB', size, (255, 255, 255))
+                
+                # Вычисляем позицию для центрирования
+                x = (size[0] - img.width) // 2
+                y = (size[1] - img.height) // 2
+                
+                # Вставляем миниатюру по центру
+                thumbnail.paste(img, (x, y))
+                
+                # Сохраняем миниатюру
+                thumbnail.save(thumbnail_path, 'JPEG', quality=85, optimize=True)
+                return True
+        except Exception as e:
+            print(f"Ошибка при создании миниатюры {image_path}: {e}")
+            return False
+    
+    def get_thumbnail_path(file_path):
+        """Возвращает путь к миниатюре файла"""
+        if not PIL_AVAILABLE:
+            return None
+            
+        # Создаем имя файла миниатюры
+        filename = os.path.basename(file_path)
+        name, ext = os.path.splitext(filename)
+        thumbnail_filename = f"{name}_thumb.jpg"
+        
+        # Путь к папке миниатюр
+        thumbnails_folder = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], 'thumbnails'))
+        
+        return os.path.join(thumbnails_folder, thumbnail_filename)
     
     # Routes
     @app.route('/')
@@ -446,6 +506,16 @@ def create_app(config_name='default'):
                         db.session.add(db_file)
                         uploaded_count += 1
                         
+                        # Генерируем миниатюру для изображений
+                        if db_file.mime_type.startswith('image/'):
+                            try:
+                                thumbnail_path = get_thumbnail_path(file_path)
+                                if thumbnail_path and PIL_AVAILABLE:
+                                    generate_thumbnail(full_file_path, thumbnail_path)
+                                    print(f"DEBUG: Миниатюра создана для {filename}")
+                            except Exception as thumb_error:
+                                print(f"DEBUG: Ошибка при создании миниатюры для {filename}: {thumb_error}")
+                        
                     except Exception as e:
                         print(f"DEBUG: Ошибка при загрузке файла: {str(e)}")
                         error_msg = f'Ошибка при загрузке файла "{file.filename if hasattr(file, "filename") else "неизвестный"}": {str(e)}'
@@ -746,6 +816,180 @@ def create_app(config_name='default'):
         except Exception as e:
             print(f"DEBUG: Ошибка при просмотре файла: {str(e)}")
             abort(404)
+    
+    @app.route('/thumbnail/<int:file_id>')
+    @login_required
+    def get_thumbnail(file_id):
+        """Маршрут для получения миниатюр изображений"""
+        file = File.query.get_or_404(file_id)
+        
+        # Проверяем права доступа
+        if file.user_id != current_user.id:
+            share = FileShare.query.filter_by(
+                file_id=file_id, 
+                shared_with=current_user.id
+            ).first()
+            if not share:
+                abort(403)
+        
+        # Проверяем, что это изображение
+        if not file.mime_type.startswith('image/'):
+            abort(404)
+        
+        try:
+            directory = os.path.abspath(app.config['UPLOAD_FOLDER'])
+            
+            # Обрабатываем разные форматы путей в БД
+            if file.file_path.startswith('uploads\\') or file.file_path.startswith('uploads/'):
+                filename = file.file_path.replace('uploads\\', '').replace('uploads/', '')
+            else:
+                filename = file.file_path
+            
+            full_path = os.path.join(directory, filename)
+            thumbnail_path = get_thumbnail_path(filename)
+            
+            if not os.path.exists(full_path):
+                abort(404)
+            
+            # Если миниатюра не существует, создаем ее
+            if not os.path.exists(thumbnail_path):
+                if PIL_AVAILABLE:
+                    success = generate_thumbnail(full_path, thumbnail_path)
+                    if not success:
+                        # Если не удалось создать миниатюру, возвращаем оригинал
+                        return send_file(full_path, mimetype=file.mime_type)
+                else:
+                    # Если PIL недоступен, возвращаем оригинал
+                    return send_file(full_path, mimetype=file.mime_type)
+            
+            # Отправляем миниатюру
+            return send_file(thumbnail_path, mimetype='image/jpeg')
+            
+        except Exception as e:
+            print(f"Ошибка при получении миниатюры: {str(e)}")
+            # В случае ошибки возвращаем оригинал
+            try:
+                return send_file(full_path, mimetype=file.mime_type)
+            except:
+                abort(404)
+    
+    @app.route('/admin/generate-thumbnails', methods=['POST'])
+    @login_required
+    def generate_all_thumbnails():
+        """Маршрут для массовой генерации миниатюр всех изображений"""
+        # Проверяем права администратора
+        if not current_user.is_admin:
+            abort(403)
+        
+        try:
+            # Получаем все изображения пользователя
+            images = File.query.filter(
+                File.user_id == current_user.id,
+                File.mime_type.like('image/%')
+            ).all()
+            
+            generated_count = 0
+            failed_count = 0
+            
+            for image in images:
+                try:
+                    directory = os.path.abspath(app.config['UPLOAD_FOLDER'])
+                    
+                    # Обрабатываем разные форматы путей в БД
+                    if image.file_path.startswith('uploads\\') or image.file_path.startswith('uploads/'):
+                        filename = image.file_path.replace('uploads\\', '').replace('uploads/', '')
+                    else:
+                        filename = image.file_path
+                    
+                    full_path = os.path.join(directory, filename)
+                    thumbnail_path = get_thumbnail_path(filename)
+                    
+                    if os.path.exists(full_path) and PIL_AVAILABLE:
+                        if not os.path.exists(thumbnail_path):
+                            success = generate_thumbnail(full_path, thumbnail_path)
+                            if success:
+                                generated_count += 1
+                            else:
+                                failed_count += 1
+                        else:
+                            # Миниатюра уже существует
+                            generated_count += 1
+                    else:
+                        failed_count += 1
+                        
+                except Exception as e:
+                    print(f"Ошибка при создании миниатюры для {image.original_filename}: {e}")
+                    failed_count += 1
+            
+            return jsonify({
+                'success': True,
+                'generated': generated_count,
+                'failed': failed_count,
+                'message': f'Создано миниатюр: {generated_count}, ошибок: {failed_count}'
+            })
+            
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    @app.route('/generate-thumbnails', methods=['POST'])
+    @login_required
+    def generate_user_thumbnails():
+        """Маршрут для генерации миниатюр изображений пользователя"""
+        try:
+            # Получаем все изображения пользователя
+            images = File.query.filter(
+                File.user_id == current_user.id,
+                File.mime_type.like('image/%')
+            ).all()
+            
+            generated_count = 0
+            failed_count = 0
+            
+            for image in images:
+                try:
+                    directory = os.path.abspath(app.config['UPLOAD_FOLDER'])
+                    
+                    # Обрабатываем разные форматы путей в БД
+                    if image.file_path.startswith('uploads\\') or image.file_path.startswith('uploads/'):
+                        filename = image.file_path.replace('uploads\\', '').replace('uploads/', '')
+                    else:
+                        filename = image.file_path
+                    
+                    full_path = os.path.join(directory, filename)
+                    thumbnail_path = get_thumbnail_path(filename)
+                    
+                    if os.path.exists(full_path) and PIL_AVAILABLE:
+                        if not os.path.exists(thumbnail_path):
+                            success = generate_thumbnail(full_path, thumbnail_path)
+                            if success:
+                                generated_count += 1
+                            else:
+                                failed_count += 1
+                        else:
+                            # Миниатюра уже существует
+                            generated_count += 1
+                    else:
+                        failed_count += 1
+                        
+                except Exception as e:
+                    print(f"Ошибка при создании миниатюры для {image.original_filename}: {e}")
+                    failed_count += 1
+            
+            return jsonify({
+                'success': True,
+                'generated': generated_count,
+                'failed': failed_count,
+                'message': f'Создано миниатюр: {generated_count}, ошибок: {failed_count}'
+            })
+            
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
     
     @app.route('/file/<int:file_id>/delete', methods=['POST'])
     @login_required

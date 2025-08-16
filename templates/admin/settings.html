@@ -81,18 +81,89 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                                                    <div class="col-md-6">
-                                    <p><strong>Тип БД:</strong> {{ config.get('DATABASE_TYPE', 'sqlite') }}</p>
-                                    <p><strong>Макс. размер файла:</strong> {{ (config.get('MAX_CONTENT_LENGTH', 0) // (1024 * 1024)) }} МБ</p>
-                                    <p><strong>Лимит хранилища по умолчанию:</strong> {{ (config.get('STORAGE_LIMIT_DEFAULT', 0) // (1024 * 1024)) }} МБ</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Папка загрузок:</strong> {{ config.get('UPLOAD_FOLDER', 'uploads') }}</p>
-                                    <p><strong>Режим отладки:</strong> {{ 'Включен' if config.get('DEBUG') else 'Выключен' }}</p>
-                                </div>
+                    <div class="col-md-6">
+                        <p><strong>Тип БД:</strong> {{ config.get('DATABASE_TYPE', 'sqlite') }}</p>
+                        <p><strong>Макс. размер файла:</strong> {{ (config.get('MAX_CONTENT_LENGTH', 0) // (1024 * 1024)) }} МБ</p>
+                        <p><strong>Лимит хранилища по умолчанию:</strong> {{ (config.get('STORAGE_LIMIT_DEFAULT', 0) // (1024 * 1024)) }} МБ</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Папка загрузок:</strong> {{ config.get('UPLOAD_FOLDER', 'uploads') }}</p>
+                        <p><strong>Режим отладки:</strong> {{ 'Включен' if config.get('DEBUG') else 'Выключен' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Карточка для управления миниатюрами -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-images me-2"></i>Управление миниатюрами
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Информация:</strong> Миниатюры изображений генерируются автоматически при загрузке новых файлов. 
+                    Для существующих изображений можно создать миниатюры вручную.
+                </div>
+                
+                <div class="d-grid">
+                    <button type="button" class="btn btn-success" onclick="generateThumbnails()">
+                        <i class="fas fa-magic me-2"></i>Создать миниатюры для всех изображений
+                    </button>
+                </div>
+                
+                <div id="thumbnailStatus" class="mt-3" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        <span id="thumbnailMessage">Создание миниатюр...</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function generateThumbnails() {
+    const statusDiv = document.getElementById('thumbnailStatus');
+    const messageSpan = document.getElementById('thumbnailMessage');
+    const button = event.target;
+    
+    // Показываем статус
+    statusDiv.style.display = 'block';
+    messageSpan.innerHTML = 'Создание миниатюр...';
+    button.disabled = true;
+    
+    // Отправляем запрос
+    fetch('/admin/generate-thumbnails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            messageSpan.innerHTML = data.message;
+            statusDiv.className = 'mt-3 alert alert-success';
+            statusDiv.querySelector('i').className = 'fas fa-check-circle me-2';
+        } else {
+            messageSpan.innerHTML = 'Ошибка: ' + data.error;
+            statusDiv.className = 'mt-3 alert alert-danger';
+            statusDiv.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+        }
+    })
+    .catch(error => {
+        messageSpan.innerHTML = 'Ошибка сети: ' + error.message;
+        statusDiv.className = 'mt-3 alert alert-danger';
+        statusDiv.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
+</script>
 {% endblock %}

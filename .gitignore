@@ -7,3 +7,4 @@ instance/cloud_storage.db
 static/images/README.md
 /uploads
 /venv
+INSTALL_THUMBNAILS.md

@@ -12,6 +12,60 @@
         user-select: none;
     }
     
+    /* Стили для миниатюр файлов */
+    .file-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .file-thumbnail:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Стили для ленивой загрузки */
+    .file-thumbnail[loading="lazy"] {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .file-thumbnail[loading="lazy"].loaded {
+        opacity: 1;
+    }
+    
+    /* Стили для плейсхолдеров */
+    .file-thumbnail-placeholder {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 8px;
+        border: 2px dashed #dee2e6;
+        color: #6c757d;
+        font-size: 1.5rem;
+    }
+    
+    /* Темная тема для миниатюр */
+    body.dark-theme .file-thumbnail {
+        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-theme .file-thumbnail-placeholder {
+        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+        border-color: #6c757d;
+        color: #adb5bd;
+    }
+    
     /* Разрешаем выделение только для инпутов и текстовых областей */
     input, textarea, .form-control {
         -webkit-user-select: text;
@@ -360,8 +414,9 @@
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
                                     {% if file.mime_type.startswith('image/') %}
-                                        <img src="/file/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <img src="/thumbnail/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                             loading="lazy">
                                         <div class="file-thumbnail-placeholder" style="display: none;">
                                             <i class="fas fa-image text-success"></i>
                                         </div>
@@ -454,8 +509,9 @@
                                     style="cursor: pointer;">
                                     <td>
                                         {% if file.mime_type.startswith('image/') %}
-                                            <img src="/file/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <img src="/thumbnail/{{ file.id }}" alt="{{ file.original_filename }}" class="file-thumbnail" 
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                 loading="lazy">
                                             <div class="file-thumbnail-placeholder" style="display: none;">
                                                 <i class="fas fa-image text-success"></i>
                                             </div>
@@ -2071,7 +2127,32 @@ document.addEventListener('DOMContentLoaded', function() {
     setViewMode(savedMode);
     
     console.log('=== DRAG AND DROP SETUP COMPLETE ===');
+    
+    // Инициализация ленивой загрузки миниатюр
+    initializeLazyLoading();
 });
+
+// Функция для ленивой загрузки миниатюр
+function initializeLazyLoading() {
+    const thumbnails = document.querySelectorAll('.file-thumbnail[loading="lazy"]');
+    
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            }
+        });
+    }, {
+        rootMargin: '50px 0px',
+        threshold: 0.1
+    });
+    
+    thumbnails.forEach(img => {
+        imageObserver.observe(img);
+    });
+}
 
 // Функция для показа модального окна переименования
 function showRenameModal() {
@@ -2141,6 +2222,7 @@ function performRename() {
 let currentImageIndex = 0;
 let imageFiles = [];
 let currentFolderId = null;
+let currentKeydownHandler = null; // Глобальная переменная для хранения ссылки на обработчик клавиатуры
 
 // Функция для открытия просмотрщика изображений
 function openImageViewer(fileId, fileName, fileSize) {
@@ -2183,6 +2265,13 @@ function openImageViewer(fileId, fileName, fileSize) {
         currentImageIndex = 0;
         imageFiles = [];
         console.log('Модальное окно закрыто, галерея сброшена');
+        
+        // Удаляем обработчик клавиатуры
+        if (currentKeydownHandler) {
+            document.removeEventListener('keydown', currentKeydownHandler);
+            currentKeydownHandler = null;
+            console.log('Обработчик клавиатуры удален при закрытии модального окна');
+        }
     });
     
     // Добавляем обработчики для навигационных кнопок
@@ -2211,8 +2300,25 @@ function openImageViewer(fileId, fileName, fileSize) {
         console.log('Обработчик для кнопки "Следующее" добавлен');
     }
     
+    // Удаляем предыдущий обработчик клавиатуры, если он существует
+    if (currentKeydownHandler) {
+        document.removeEventListener('keydown', currentKeydownHandler);
+        console.log('Предыдущий обработчик клавиатуры удален');
+    }
+    
     // Добавляем обработчик клавиатуры для галереи
-    const keydownHandler = function(event) {
+    currentKeydownHandler = function(event) {
+        // Проверяем, что модальное окно открыто
+        const modal = document.getElementById('imageViewerModal');
+        if (!modal || !modal.classList.contains('show')) {
+            return;
+        }
+        
+        // Проверяем, что галерея активна и есть изображения
+        if (!imageFiles || imageFiles.length <= 1) {
+            return;
+        }
+        
         if (event.key === 'ArrowLeft') {
             event.preventDefault();
             console.log('Нажата клавиша "Стрелка влево"');
@@ -2228,11 +2334,16 @@ function openImageViewer(fileId, fileName, fileSize) {
         }
     };
     
-    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('keydown', currentKeydownHandler);
+    console.log('Новый обработчик клавиатуры добавлен');
     
     // Удаляем обработчик клавиатуры при закрытии модального окна
     document.getElementById('imageViewerModal').addEventListener('hidden.bs.modal', function () {
-        document.removeEventListener('keydown', keydownHandler);
+        if (currentKeydownHandler) {
+            document.removeEventListener('keydown', currentKeydownHandler);
+            currentKeydownHandler = null;
+            console.log('Обработчик клавиатуры удален при закрытии модального окна');
+        }
     });
     
     imageViewerModal.show();
@@ -2348,6 +2459,15 @@ function updateImageNavigation() {
         console.log('Исправлен индекс за пределами массива на', currentImageIndex);
     }
     
+    // Проверяем, что массив изображений не пустой
+    if (imageFiles.length === 0) {
+        console.log('Массив изображений пуст, скрываем навигацию');
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counter) counter.style.display = 'none';
+        return;
+    }
+    
     // Обновляем счетчик
     if (counter) {
         counter.textContent = `${currentImageIndex + 1} / ${imageFiles.length}`;
@@ -2371,6 +2491,12 @@ function showPreviousImage() {
     console.log('currentImageIndex:', currentImageIndex);
     console.log('imageFiles.length:', imageFiles.length);
     
+    // Проверяем, что галерея активна
+    if (!imageFiles || imageFiles.length === 0) {
+        console.log('Галерея не активна, пропускаем');
+        return;
+    }
+    
     if (currentImageIndex > 0) {
         currentImageIndex--;
         console.log('Переход к предыдущему изображению, новый индекс:', currentImageIndex);
@@ -2386,6 +2512,12 @@ function showNextImage() {
     console.log('currentImageIndex:', currentImageIndex);
     console.log('imageFiles.length:', imageFiles.length);
     
+    // Проверяем, что галерея активна
+    if (!imageFiles || imageFiles.length === 0) {
+        console.log('Галерея не активна, пропускаем');
+        return;
+    }
+    
     if (currentImageIndex < imageFiles.length - 1) {
         currentImageIndex++;
         console.log('Переход к следующему изображению, новый индекс:', currentImageIndex);
@@ -2400,6 +2532,12 @@ function showImageByIndex(index) {
     console.log('showImageByIndex вызвана с индексом:', index);
     console.log('imageFiles:', imageFiles);
     
+    // Проверяем, что галерея активна
+    if (!imageFiles || imageFiles.length === 0) {
+        console.log('Галерея не активна, пропускаем');
+        return;
+    }
+    
     if (index < 0 || index >= imageFiles.length) {
         console.log('Индекс вне диапазона:', index, 'длина массива:', imageFiles.length);
         return;
@@ -2412,6 +2550,12 @@ function showImageByIndex(index) {
     const imageFileName = document.getElementById('imageFileName');
     const imageFileSize = document.getElementById('imageFileSize');
     const downloadImageBtn = document.getElementById('downloadImageBtn');
+    
+    // Проверяем, что элементы существуют
+    if (!imageViewerImg || !imageFileName || !imageFileSize || !downloadImageBtn) {
+        console.log('Не все элементы найдены, пропускаем');
+        return;
+    }
     
     // Анимация смены изображения
     imageViewerImg.classList.add('image-fade');

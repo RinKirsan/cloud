@@ -208,6 +208,77 @@ body.dark-theme .form-label {
                 </p>
             </div>
         </div>
+        
+        <!-- Карточка для управления миниатюрами -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-images me-2"></i>Оптимизация изображений
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Информация:</strong> Создание миниатюр ускорит загрузку страниц с изображениями. 
+                    Миниатюры генерируются автоматически для новых файлов.
+                </div>
+                
+                <div class="d-grid">
+                    <button type="button" class="btn btn-success" onclick="generateUserThumbnails()">
+                        <i class="fas fa-magic me-2"></i>Создать миниатюры для моих изображений
+                    </button>
+                </div>
+                
+                <div id="userThumbnailStatus" class="mt-3" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        <span id="userThumbnailMessage">Создание миниатюр...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+function generateUserThumbnails() {
+    const statusDiv = document.getElementById('userThumbnailStatus');
+    const messageSpan = document.getElementById('userThumbnailMessage');
+    const button = event.target;
+    
+    // Показываем статус
+    statusDiv.style.display = 'block';
+    messageSpan.innerHTML = 'Создание миниатюр...';
+    button.disabled = true;
+    
+    // Отправляем запрос
+    fetch('/generate-thumbnails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            messageSpan.innerHTML = data.message;
+            statusDiv.className = 'mt-3 alert alert-success';
+            statusDiv.querySelector('i').className = 'fas fa-check-circle me-2';
+        } else {
+            messageSpan.innerHTML = 'Ошибка: ' + data.error;
+            statusDiv.className = 'mt-3 alert alert-danger';
+            statusDiv.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+        }
+    })
+    .catch(error => {
+        messageSpan.innerHTML = 'Ошибка сети: ' + error.message;
+        statusDiv.className = 'mt-3 alert alert-danger';
+        statusDiv.querySelector('i').className = 'fas fa-exclamation-circle me-2';
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}
+</script>
 {% endblock %}
