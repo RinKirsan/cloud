@@ -66,6 +66,1237 @@
         color: #adb5bd;
     }
     
+    /* Мобильная оптимизация */
+    @media (max-width: 768px) {
+        /* Контейнер и отступы */
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        /* Карточки */
+        .card {
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-header {
+            padding: 15px;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        /* Кнопки */
+        .btn {
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #007bff;
+            color: #ffffff;
+        }
+        
+        /* Плиточное представление */
+        .col-md-4.col-lg-3 {
+            padding: 0 5px;
+        }
+        
+        .item-card {
+            margin-bottom: 10px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 15px;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .item-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .item-card.folder-item {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-color: #ffc107;
+        }
+        
+        .item-card .file-thumbnail,
+        .item-card .file-thumbnail-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-card .file-thumbnail {
+            object-fit: cover;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .item-card .file-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .item-card .file-thumbnail[loading="lazy"] {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .item-card .file-thumbnail[loading="lazy"].loaded {
+            opacity: 1;
+        }
+        
+        .item-card .file-thumbnail-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            color: #6c757d;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-card h6 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .item-card small {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Мобильная оптимизация плиточного представления */
+        .item-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .item-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .item-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .item-card.folder-item {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-color: #ffc107;
+        }
+        
+        .item-card.file-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+        
+        .item-card .file-thumbnail,
+        .item-card .file-thumbnail-placeholder {
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-card .flex-grow-1 {
+            min-width: 0;
+            flex: 1;
+        }
+        
+        .item-card h6 {
+            color: #495057;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .item-card small {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Табличное представление */
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 -10px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px 8px;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+        
+        .table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        
+        /* Бейджи */
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+        
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+            color: #212529 !important;
+        }
+        
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%) !important;
+        }
+        
+        .badge.bg-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%) !important;
+        }
+        
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%) !important;
+        }
+        
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        }
+        
+        /* Хлебные крошки */
+        .breadcrumb {
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .breadcrumb-item {
+            font-size: 13px;
+        }
+        
+        .breadcrumb-item a {
+            text-decoration: none;
+            color: #6c757d;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: #495057;
+        }
+        
+        /* Модальные окна */
+        .modal-dialog {
+            margin: 10px;
+            max-width: calc(100vw - 20px);
+        }
+        
+        .modal-content {
+            border-radius: 16px;
+        }
+        
+        .modal-header {
+            padding: 20px 20px 15px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px 20px;
+            border-radius: 0 0 16px 16px;
+        }
+        
+        /* Формы */
+        .form-control,
+        .form-select {
+            font-size: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #80bdff;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .form-text {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        /* Поиск */
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-form {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .search-form .form-control {
+            width: 100%;
+            border-radius: 25px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .search-form .btn {
+            width: 100%;
+            max-width: 200px;
+            align-self: center;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+        
+        /* Навигация по галерее */
+        .image-gallery-nav-btn {
+            width: 44px;
+            height: 44px;
+            font-size: 1rem;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-counter {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+        
+        /* Контейнер изображения */
+        .image-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 5px;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        /* Алерты */
+        .alert {
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+        
+        /* Дропдауны */
+        .dropdown-menu {
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            max-width: calc(100vw - 20px);
+            min-width: 180px;
+        }
+        
+        .dropdown-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Анимации */
+        @media (prefers-reduced-motion: no-preference) {
+            .item-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .btn {
+                transition: all 0.2s ease;
+            }
+            
+            .card {
+                transition: box-shadow 0.3s ease, transform 0.2s ease;
+            }
+        }
+        
+        /* Touch оптимизация */
+        .btn,
+        .dropdown-item,
+        .table td,
+        .table th {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Улучшенная читаемость */
+        .text-muted {
+            color: #495057 !important;
+        }
+        
+        .text-secondary {
+            color: #343a40 !important;
+        }
+        
+        .card-header h5,
+        .card-header h6 {
+            color: #212529;
+            font-weight: 700;
+        }
+        
+        .item-card h6 {
+            color: #212529;
+            font-weight: 600;
+        }
+    }
+    
+    /* Дополнительная оптимизация для очень маленьких экранов */
+    @media (max-width: 480px) {
+        .container {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        
+        .card-body {
+            padding: 12px;
+        }
+        
+        .card-header {
+            padding: 12px;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        .item-card {
+            padding: 12px;
+            border-radius: 10px;
+        }
+        
+        .item-card .file-thumbnail,
+        .item-card .file-thumbnail-placeholder {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+        }
+        
+        .item-card .file-thumbnail {
+            object-fit: cover;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        
+        .item-card .file-thumbnail:hover {
+            transform: scale(1.03);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .item-card .file-thumbnail[loading="lazy"] {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .item-card .file-thumbnail[loading="lazy"].loaded {
+            opacity: 1;
+        }
+        
+        .item-card .file-thumbnail-placeholder {
+            font-size: 1.3rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-card h6 {
+            font-size: 13px;
+        }
+        
+        .item-card small {
+            font-size: 11px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 8px 6px;
+            font-size: 13px;
+        }
+        
+        .table th {
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .badge {
+            font-size: 10px;
+            padding: 3px 6px;
+            letter-spacing: 0.3px;
+        }
+        
+        .modal-dialog {
+            margin: 5px;
+            max-width: calc(100vw - 10px);
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+        }
+        
+        .modal-header {
+            padding: 15px 15px 10px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .modal-body {
+            padding: 15px;
+        }
+        
+        .modal-footer {
+            padding: 10px 15px 15px;
+            border-radius: 0 0 12px 16px;
+        }
+        
+        .image-container {
+            min-height: 250px;
+            margin: 3px;
+            border-radius: 8px;
+        }
+        
+        .image-container img {
+            max-height: 50vh;
+            border-radius: 6px;
+        }
+        
+        .image-gallery-nav-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
+        }
+        
+        .image-counter {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        
+        .search-form .btn {
+            max-width: 150px;
+        }
+        
+        .breadcrumb-item {
+            font-size: 12px;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            padding: 0 5px;
+        }
+        
+        /* Дополнительная оптимизация для очень маленьких экранов */
+        .col-6 {
+            padding: 0 3px;
+        }
+        
+        .item-card {
+            margin-bottom: 8px;
+        }
+        
+        .btn-group .btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        
+        .card-header h5,
+        .card-header h6 {
+            font-size: 1rem;
+        }
+        
+        .alert {
+            padding: 10px;
+            font-size: 12px;
+        }
+        
+        .dropdown-menu {
+            max-width: calc(100vw - 10px);
+            min-width: 160px;
+        }
+        
+        .dropdown-item {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+        
+        /* Оптимизация для устройств с высоким DPI */
+        .file-thumbnail,
+        .file-thumbnail-placeholder {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
+        
+        .item-card .file-thumbnail {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
+        
+        .image-container img {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        .btn {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    /* Оптимизация для ландшафтной ориентации */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .modal-dialog {
+            margin: 5px;
+        }
+        
+        .image-viewer-modal img {
+            max-height: 60vh;
+        }
+        
+        .image-container {
+            min-height: 200px;
+        }
+        
+        .image-container img {
+            max-height: 50vh;
+        }
+        
+        .modal-header {
+            padding: 15px 20px 10px;
+        }
+        
+        .modal-body {
+            padding: 15px;
+        }
+        
+        .modal-footer {
+            padding: 10px 20px 15px;
+        }
+        
+        .image-gallery-nav-btn {
+            width: 48px;
+            height: 48px;
+            font-size: 1.1rem;
+        }
+        
+        .image-counter {
+            font-size: 13px;
+            padding: 6px 12px;
+        }
+    }
+    
+    /* Оптимизация для устройств с высоким DPI */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .file-thumbnail,
+        .file-thumbnail-placeholder {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    /* Оптимизация для устройств с поддержкой hover */
+    @media (hover: hover) {
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+    }
+    
+    /* Оптимизация для устройств без поддержки hover */
+    @media (hover: none) {
+        .item-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+    }
+    
+    /* Дополнительные мобильные оптимизации */
+    @media (max-width: 768px) {
+        /* Улучшенная навигация */
+        .btn-group .btn {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        /* Улучшенный поиск */
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-form {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .search-form .form-control {
+            width: 100%;
+            border-radius: 25px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .search-form .btn {
+            width: 100%;
+            max-width: 200px;
+            align-self: center;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+        
+        /* Адаптивный поиск */
+        @media (min-width: 576px) {
+            .search-form {
+                flex-direction: row;
+            }
+            
+            .search-form .form-control {
+                width: auto;
+                flex: 1;
+            }
+            
+            .search-form .btn {
+                width: auto;
+                max-width: none;
+                align-self: stretch;
+            }
+        }
+        
+        /* Улучшенная пагинация */
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .page-link {
+            padding: 10px 14px;
+            font-size: 14px;
+            border-radius: 8px;
+            margin: 0 2px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        /* Улучшенные модальные окна */
+        .image-viewer-modal .modal-dialog {
+            margin: 10px;
+            max-width: calc(100vw - 20px);
+        }
+        
+        .image-viewer-modal .modal-content {
+            border-radius: 16px;
+        }
+        
+        .image-viewer-modal .modal-body {
+            padding: 0;
+        }
+        
+        .image-viewer-modal img {
+            border-radius: 16px;
+            max-height: 70vh;
+            object-fit: contain;
+        }
+        
+        /* Улучшенная галерея */
+        .image-gallery-nav-btn {
+            width: 44px;
+            height: 44px;
+            font-size: 1rem;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .image-counter {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+        
+        /* Улучшенные контекстные меню */
+        .context-menu {
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: calc(100vw - 20px);
+            min-width: 180px;
+        }
+        
+        .context-menu .dropdown-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Улучшенный drag & drop */
+        .drag-over {
+            border: 2px dashed #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .drag-over:hover {
+            background-color: rgba(0, 123, 255, 0.15);
+            border-color: #0056b3;
+        }
+        
+        /* Улучшенные анимации */
+        @media (prefers-reduced-motion: no-preference) {
+            .item-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .drag-over {
+                animation: pulse 1.5s infinite;
+            }
+            
+            .btn {
+                transition: all 0.2s ease;
+            }
+            
+            .card {
+                transition: box-shadow 0.3s ease, transform 0.2s ease;
+            }
+            
+            .table tbody tr {
+                transition: background-color 0.2s ease;
+            }
+            
+            .modal-content {
+                transition: transform 0.3s ease;
+            }
+            
+            .dropdown-menu {
+                transition: opacity 0.2s ease, transform 0.2s ease;
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease forwards;
+        }
+        
+        /* Улучшенная доступность */
+        .btn,
+        .dropdown-item,
+        .table td,
+        .table th {
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Улучшенная читаемость */
+        .text-muted {
+            color: #495057 !important;
+        }
+        
+        .text-secondary {
+            color: #343a40 !important;
+        }
+        
+        .card-header h5,
+        .card-header h6 {
+            color: #212529;
+            font-weight: 700;
+        }
+        
+        .item-card h6 {
+            color: #212529;
+            font-weight: 600;
+        }
+        
+        /* Улучшенная производительность */
+        .item-card,
+        .card,
+        .btn,
+        .table {
+            will-change: transform, box-shadow;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        .image-fade,
+        .fade-in,
+        .slide-in {
+            will-change: opacity, transform;
+        }
+        
+        .table-responsive,
+        .modal-body {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        
+        .file-thumbnail {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        /* Дополнительная оптимизация для очень маленьких экранов */
+        .pagination {
+            gap: 3px;
+        }
+        
+        .page-link {
+            padding: 8px 10px;
+            font-size: 13px;
+            min-width: 36px;
+        }
+        
+        .page-item:not(.active) .page-link {
+            display: none;
+        }
+        
+        .page-item.active .page-link,
+        .page-item:first-child .page-link,
+        .page-item:last-child .page-link {
+            display: block;
+        }
+        
+        .search-form .btn {
+            max-width: 150px;
+        }
+        
+        .breadcrumb-item {
+            font-size: 12px;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            padding: 0 5px;
+        }
+        
+        /* Улучшенная производительность для маленьких экранов */
+        .item-card,
+        .card,
+        .btn {
+            will-change: auto;
+            backface-visibility: visible;
+        }
+        
+        .image-fade,
+        .fade-in,
+        .slide-in {
+            will-change: auto;
+        }
+        
+        .table tbody tr {
+            transition: background-color 0.1s ease;
+        }
+    }
+    
+    /* Оптимизация для ландшафтной ориентации */
+    @media (max-width: 768px) and (orientation: landscape) {
+        .modal-dialog {
+            margin: 5px;
+        }
+        
+        .image-viewer-modal img {
+            max-height: 60vh;
+        }
+        
+        .image-container {
+            min-height: 200px;
+        }
+        
+        .image-container img {
+            max-height: 50vh;
+        }
+        
+        .modal-header {
+            padding: 15px 20px 10px;
+        }
+        
+        .modal-body {
+            padding: 15px;
+        }
+        
+        .modal-footer {
+            padding: 10px 20px 15px;
+        }
+        
+        .image-gallery-nav-btn {
+            width: 48px;
+            height: 48px;
+            font-size: 1.1rem;
+        }
+        
+        .image-counter {
+            font-size: 13px;
+            padding: 6px 12px;
+        }
+    }
+    
+    /* Темная тема для мобильных */
+    @media (max-width: 768px) {
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e9ecef;
+        }
+        
+        body.dark-theme .card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+            border-color: #4d4d4d;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .card-header {
+            background: linear-gradient(135deg, #3d3d3d 0%, #4d4d4d 100%);
+            border-bottom-color: #5d5d5d;
+        }
+        
+        body.dark-theme .table th {
+            background: linear-gradient(135deg, #3d3d3d 0%, #4d4d4d 100%);
+            color: #e9ecef;
+            border-bottom-color: #5d5d5d;
+        }
+        
+        body.dark-theme .table td {
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-theme .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        body.dark-theme .item-card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+            border-color: #4d4d4d;
+        }
+        
+        body.dark-theme .item-card.folder-item {
+            background: linear-gradient(135deg, #3d2d1a 0%, #4d3d2a 100%);
+            border-color: #5d4d3a;
+        }
+        
+        body.dark-theme .item-card h6 {
+            color: #e9ecef;
+        }
+        
+        body.dark-theme .item-card small {
+            color: #adb5bd;
+        }
+        
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background: #2d2d2d;
+            border-color: #4d4d4d;
+            color: #e9ecef;
+        }
+        
+        body.dark-theme .form-control:focus,
+        body.dark-theme .form-select:focus {
+            background: #3d3d3d;
+            border-color: #007bff;
+            color: #e9ecef;
+        }
+        
+        body.dark-theme .dropdown-menu {
+            background: #2d2d2d;
+            border-color: #4d4d4d;
+        }
+        
+        body.dark-theme .dropdown-item {
+            color: #e9ecef;
+        }
+        
+        body.dark-theme .dropdown-item:hover {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .image-gallery-nav-btn {
+            background: rgba(52, 58, 64, 0.98) !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        body.dark-theme .image-counter {
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        body.dark-theme .image-container {
+            background: linear-gradient(135deg, rgba(52, 58, 64, 0.4), rgba(73, 80, 87, 0.4));
+        }
+    }
+    
+    @media (max-width: 480px) {
+        body.dark-theme .card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+        }
+        
+        body.dark-theme .item-card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+        }
+        
+        body.dark-theme .image-gallery-nav-btn {
+            background: rgba(52, 58, 64, 0.99) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        body.dark-theme .image-counter {
+            background: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Дополнительная оптимизация темной темы для маленьких экранов */
+        body.dark-theme .btn {
+            border: 2px solid #4d4d4d;
+        }
+        
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background: #2a2a2a;
+            border-color: #4d4d4d;
+        }
+        
+        body.dark-theme .dropdown-menu {
+            background: #2a2a2a;
+            border-color: #4d4d4d;
+        }
+        
+        body.dark-theme .table th {
+            background: #2a2a2a !important;
+        }
+    }
+    
     /* Разрешаем выделение только для инпутов и текстовых областей */
     input, textarea, .form-control {
         -webkit-user-select: text;
@@ -342,22 +1573,24 @@
                         <i class="fas fa-folder me-2"></i>{{ breadcrumb[-1].name if breadcrumb else 'Папка' }}
                     {% endif %}
                 </h4>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center flex-wrap">
                     <!-- View Mode Toggle -->
-                    <div class="btn-group btn-group-sm me-3" role="group" aria-label="Режим отображения">
+                    <div class="btn-group btn-group-sm me-3 mb-2" role="group" aria-label="Режим отображения">
                         <button type="button" class="btn btn-view-toggle" id="tileView" onclick="setViewMode('tile')">
-                            <i class="fas fa-th-large me-1"></i>Плитка
+                            <i class="fas fa-th-large me-1 d-none d-sm-inline"></i><span class="d-inline d-sm-none">П</span><span class="d-none d-sm-inline">Плитка</span>
                         </button>
                         <button type="button" class="btn btn-view-toggle" id="tableView" onclick="setViewMode('table')">
-                            <i class="fas fa-list me-1"></i>Таблица
+                            <i class="fas fa-list me-1 d-none d-sm-inline"></i><span class="d-inline d-sm-none">Т</span><span class="d-none d-sm-inline">Таблица</span>
                         </button>
                     </div>
-                    <a href="{{ url_for('upload_file', folder=current_folder_id) }}" class="btn btn-primary me-2">
-                        <i class="fas fa-upload me-1"></i>Загрузить
-                    </a>
-                    <a href="{{ url_for('create_folder', parent=current_folder_id) }}" class="btn btn-outline-primary">
-                        <i class="fas fa-folder-plus me-1"></i>Новая папка
-                    </a>
+                    <div class="d-flex flex-wrap">
+                        <a href="{{ url_for('upload_file', folder=current_folder_id) }}" class="btn btn-primary me-2 mb-2">
+                            <i class="fas fa-upload me-1"></i><span class="d-none d-sm-inline">Загрузить</span><span class="d-inline d-sm-none">↑</span>
+                        </a>
+                        <a href="{{ url_for('create_folder', parent=current_folder_id) }}" class="btn btn-outline-primary mb-2">
+                            <i class="fas fa-folder-plus me-1"></i><span class="d-none d-sm-none">+</span><span class="d-none d-sm-inline">Новая папка</span>
+                        </a>
+                    </div>
                 </div>
             </div>
             
@@ -464,13 +1697,13 @@
                 <div id="tableViewContent" class="view-content" style="display: none;">
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead>
+                            <thead class="d-none d-md-table-header-group">
                                 <tr>
                                     <th style="width: 60px;"></th>
                                     <th>Название</th>
-                                    <th>Тип</th>
-                                    <th>Размер</th>
-                                    <th>Дата создания</th>
+                                    <th class="d-none d-md-table-cell">Тип</th>
+                                    <th class="d-none d-md-table-cell">Размер</th>
+                                    <th class="d-none d-md-table-cell">Дата создания</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -489,12 +1722,19 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <span>{{ folder.name }}</span>
+                                            <span class="text-truncate d-block">{{ folder.name }}</span>
+                                        </div>
+                                        <!-- Мобильная информация -->
+                                        <div class="d-md-none mt-1">
+                                            <small class="text-muted">
+                                                <span class="badge bg-warning">Папка</span>
+                                                <span class="ms-2">{{ folder.created_at.strftime('%d.%m.%Y') }}</span>
+                                            </small>
                                         </div>
                                     </td>
-                                    <td><span class="badge bg-warning">Папка</span></td>
-                                    <td>-</td>
-                                    <td>{{ folder.created_at.strftime('%d.%m.%Y') }}</td>
+                                    <td class="d-none d-md-table-cell"><span class="badge bg-warning">Папка</span></td>
+                                    <td class="d-none d-md-table-cell">-</td>
+                                    <td class="d-none d-md-table-cell">{{ folder.created_at.strftime('%d.%m.%Y') }}</td>
                                 </tr>
                                 {% endfor %}
                                 
@@ -529,21 +1769,42 @@
                                             </div>
                                         {% else %}
                                             <div class="file-thumbnail-placeholder">
-                                                <i class="fas fa-file text-secondary"></i>
+                                                <div class="file-thumbnail-placeholder">
+                                                    <i class="fas fa-file text-secondary"></i>
+                                                </div>
                                             </div>
                                         {% endif %}
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <span title="{{ file.original_filename }}">{{ file.original_filename }}</span>
+                                            <span title="{{ file.original_filename }}" class="text-truncate d-block">{{ file.original_filename }}</span>
                                             {% if file.is_public %}
-                                                <span class="badge bg-success ms-2">
+                                                <span class="badge bg-success ms-2 d-none d-sm-inline-block">
                                                     <i class="fas fa-globe me-1"></i>Публичный
                                                 </span>
+                                                <span class="badge bg-success ms-2 d-inline-block d-sm-none">🌐</span>
                                             {% endif %}
                                         </div>
+                                        <!-- Мобильная информация -->
+                                        <div class="d-md-none mt-1">
+                                            <small class="text-muted">
+                                                {% if file.mime_type.startswith('image/') %}
+                                                    <span class="badge bg-success">Изображение</span>
+                                                {% elif file.mime_type.startswith('video/') %}
+                                                    <span class="badge bg-danger">Видео</span>
+                                                {% elif file.mime_type.startswith('audio/') %}
+                                                    <span class="badge bg-info">Аудио</span>
+                                                {% elif file.mime_type.startswith('text/') %}
+                                                    <span class="badge bg-primary">Текст</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Файл</span>
+                                                {% endif %}
+                                                <span class="ms-2">{{ file.get_file_size_formatted() }}</span>
+                                                <span class="ms-2">{{ file.created_at.strftime('%d.%m.%Y') }}</span>
+                                            </small>
+                                        </div>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">
                                         {% if file.mime_type.startswith('image/') %}
                                             <span class="badge bg-success">Изображение</span>
                                         {% elif file.mime_type.startswith('video/') %}
@@ -556,8 +1817,8 @@
                                             <span class="badge bg-secondary">Файл</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ file.get_file_size_formatted() }}</td>
-                                    <td>{{ file.created_at.strftime('%d.%m.%Y') }}</td>
+                                    <td class="d-none d-md-table-cell">{{ file.get_file_size_formatted() }}</td>
+                                    <td class="d-none d-md-table-cell">{{ file.created_at.strftime('%d.%m.%Y') }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -617,7 +1878,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="imageViewerModalLabel">
-                    <i class="fas fa-image me-2"></i>Просмотр изображения
+                    <i class="fas fa-image me-2 d-none d-sm-inline"></i>Просмотр изображения
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -644,9 +1905,11 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1 d-none d-sm-inline"></i>Закрыть
+                </button>
                 <a href="#" class="btn btn-primary" id="downloadImageBtn" target="_blank">
-                    <i class="fas fa-download me-1"></i>Скачать
+                    <i class="fas fa-download me-1"></i><span class="d-none d-sm-inline">Скачать</span><span class="d-inline d-sm-none">↓</span>
                 </a>
             </div>
         </div>
