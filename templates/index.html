@@ -19,6 +19,183 @@
         -ms-user-select: text;
         user-select: text;
     }
+    
+    /* Стили для галереи изображений */
+    .image-gallery-nav-btn {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid rgba(0, 0, 0, 0.08) !important;
+        color: #2c3e50 !important;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        font-size: 1.1rem;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        cursor: pointer;
+        outline: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .image-gallery-nav-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    
+    .image-gallery-nav-btn:hover {
+        background: rgba(255, 255, 255, 1) !important;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: rgba(52, 152, 219, 0.3) !important;
+        color: #3498db !important;
+    }
+    
+    .image-gallery-nav-btn:hover::before {
+        opacity: 1;
+    }
+    
+    .image-gallery-nav-btn:active {
+        transform: translateY(0) scale(0.98);
+        transition: all 0.1s ease;
+    }
+    
+    .image-gallery-nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        background: rgba(200, 200, 200, 0.8) !important;
+        color: #999 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .image-gallery-nav-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+    }
+    
+    /* Стили для темной темы */
+    body.dark-theme .image-gallery-nav-btn {
+        background: rgba(52, 58, 64, 0.95) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+        color: #e9ecef !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-theme .image-gallery-nav-btn:hover {
+        background: rgba(73, 80, 87, 1) !important;
+        border-color: rgba(52, 152, 219, 0.5) !important;
+        color: #74b9ff !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    body.dark-theme .image-gallery-nav-btn::before {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(155, 89, 182, 0.2));
+    }
+    
+    body.dark-theme .image-counter {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: #e9ecef !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    body.dark-theme .image-container {
+        background: linear-gradient(135deg, rgba(52, 58, 64, 0.3), rgba(73, 80, 87, 0.3));
+    }
+    
+    .image-counter {
+        background: rgba(0, 0, 0, 0.85) !important;
+        color: white !important;
+        padding: 10px 16px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.5px;
+    }
+    
+    .image-container {
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(248, 249, 250, 0.5), rgba(233, 236, 239, 0.5));
+        border-radius: 12px;
+        margin: 10px;
+    }
+    
+    .image-container img {
+        max-height: 70vh;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .image-container img:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Анимация для смены изображений */
+    .image-fade {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .image-fade.show {
+        opacity: 1;
+    }
+    
+    /* Стили для мобильных устройств */
+    @media (max-width: 768px) {
+        .image-gallery-nav-btn {
+            width: 56px;
+            height: 56px;
+            font-size: 1.3rem;
+            border-width: 2px;
+        }
+        
+        .image-counter {
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 20px;
+        }
+    }
+    
+    /* Стили для очень маленьких экранов */
+    @media (max-width: 480px) {
+        .image-gallery-nav-btn {
+            width: 52px;
+            height: 52px;
+            font-size: 1.2rem;
+        }
+        
+        .image-counter {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+    }
 </style>
 <div class="row">
     <!-- Sidebar -->
@@ -173,6 +350,10 @@
                         {% for file in files %}
                         <div class="col-md-4 col-lg-3 mb-3">
                             <div class="item-card file-item" 
+                                 data-file-id="{{ file.id }}"
+                                 data-file-name="{{ file.original_filename }}"
+                                 data-file-size="{{ file.get_file_size_formatted() }}"
+                                 data-mime-type="{{ file.mime_type }}"
                                  oncontextmenu="showContextMenu(event, 'file', {{ file.id }}, '{{ file.original_filename }}', '{{ file.public_url if file.public_url else '' }}')"
                                  ondblclick="{% if file.mime_type.startswith('image/') %}openImageViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/pdf') %}openPdfViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}openDocumentViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('text/') %}openTextViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% else %}window.location.href='/file/{{ file.id }}'{% endif %}"
                                  title="{% if file.mime_type.startswith('image/') %}Двойной клик для просмотра, правый клик для меню{% elif file.mime_type.startswith('application/pdf') %}Двойной клик для просмотра PDF, правый клик для меню{% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}Двойной клик для информации о документе, правый клик для меню{% elif file.mime_type.startswith('text/') %}Двойной клик для просмотра текста, правый клик для меню{% else %}Правый клик для меню действий{% endif %}">
@@ -263,7 +444,11 @@
                                 {% endfor %}
                                 
                                 {% for file in files %}
-                                <tr oncontextmenu="showContextMenu(event, 'file', {{ file.id }}, '{{ file.original_filename }}', '{{ file.public_url if file.public_url else '' }}')"
+                                <tr data-file-id="{{ file.id }}"
+                                    data-file-name="{{ file.original_filename }}"
+                                    data-file-size="{{ file.get_file_size_formatted() }}"
+                                    data-mime-type="{{ file.mime_type }}"
+                                    oncontextmenu="showContextMenu(event, 'file', {{ file.id }}, '{{ file.original_filename }}', '{{ file.public_url if file.public_url else '' }}')"
                                     ondblclick="{% if file.mime_type.startswith('image/') %}openImageViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/pdf') %}openPdfViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}openDocumentViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% elif file.mime_type.startswith('text/') %}openTextViewer({{ file.id }}, '{{ file.original_filename }}', '{{ file.get_file_size_formatted() }}'){% else %}window.location.href='/file/{{ file.id }}'{% endif %}"
                                     title="{% if file.mime_type.startswith('image/') %}Двойной клик для просмотра, правый клик для меню{% elif file.mime_type.startswith('application/pdf') %}Двойной клик для просмотра PDF, правый клик для меню{% elif file.mime_type.startswith('application/vnd.openxmlformats') or file.mime_type.startswith('application/vnd.ms-') %}Двойной клик для информации о документе, правый клик для меню{% elif file.mime_type.startswith('text/') %}Двойной клик для просмотра текста, правый клик для меню{% else %}Правый клик для меню действий{% endif %}"
                                     style="cursor: pointer;">
@@ -380,9 +565,22 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
+            <div class="modal-body text-center position-relative">
+                <!-- Навигационные кнопки -->
+                <button type="button" class="btn image-gallery-nav-btn position-absolute" id="prevImageBtn" style="left: 10px; top: 50%; transform: translateY(-50%); z-index: 1000; display: none;">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button type="button" class="btn image-gallery-nav-btn position-absolute" id="nextImageBtn" style="right: 10px; top: 50%; transform: translateY(-50%); z-index: 1000; display: none;">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Счетчик изображений -->
+                <div class="position-absolute" style="top: 10px; right: 10px; z-index: 1000;">
+                    <span class="badge image-counter" id="imageCounter">1 / 1</span>
+                </div>
+                
                 <div class="image-container">
-                    <img id="imageViewerImg" src="" alt="Изображение" class="img-fluid" style="max-height: 70vh; max-width: 100%;">
+                    <img id="imageViewerImg" src="" alt="Изображение" class="img-fluid image-fade" style="max-height: 70vh; max-width: 100%;">
                 </div>
                 <div class="image-info mt-3">
                     <p class="text-muted mb-1" id="imageFileName"></p>
@@ -1793,6 +1991,68 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Table body element not found');
     }
     
+    // Добавляем обработчики для галереи изображений
+    const prevImageBtn = document.getElementById('prevImageBtn');
+    const nextImageBtn = document.getElementById('nextImageBtn');
+    
+    if (prevImageBtn) {
+        prevImageBtn.addEventListener('click', showPreviousImage);
+        console.log('Previous image button handler added');
+    }
+    
+    if (nextImageBtn) {
+        nextImageBtn.addEventListener('click', showNextImage);
+        console.log('Next image button handler added');
+    }
+    
+    // Добавляем обработчики клавиатуры для галереи
+    document.addEventListener('keydown', function(event) {
+        if (document.getElementById('imageViewerModal').classList.contains('show')) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                showPreviousImage();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                showNextImage();
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('imageViewerModal'));
+                if (modal) modal.hide();
+            }
+        }
+    });
+    
+    // Добавляем поддержку свайпов для мобильных устройств
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const imageViewerModal = document.getElementById('imageViewerModal');
+    if (imageViewerModal) {
+        imageViewerModal.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        imageViewerModal.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+    }
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Свайп влево - следующее изображение
+                showNextImage();
+            } else {
+                // Свайп вправо - предыдущее изображение
+                showPreviousImage();
+            }
+        }
+    }
+    
     // Предотвращаем перетаскивание на заголовок таблицы
     const tableHeader = document.querySelector('thead');
     if (tableHeader) {
@@ -1877,8 +2137,20 @@ function performRename() {
     form.submit();
 }
 
+// Глобальные переменные для галереи изображений
+let currentImageIndex = 0;
+let imageFiles = [];
+let currentFolderId = null;
+
 // Функция для открытия просмотрщика изображений
 function openImageViewer(fileId, fileName, fileSize) {
+    // Получаем текущую папку
+    const urlParams = new URLSearchParams(window.location.search);
+    currentFolderId = urlParams.get('folder') || 0;
+    
+    // Получаем все изображения в текущей папке
+    getImageFiles(currentFolderId, fileId);
+    
     // Устанавливаем изображение в модальном окне
     const imageViewerImg = document.getElementById('imageViewerImg');
     const imageFileName = document.getElementById('imageFileName');
@@ -1891,6 +2163,8 @@ function openImageViewer(fileId, fileName, fileSize) {
     // Добавляем обработчик загрузки для проверки успешности
     imageViewerImg.onload = function() {
         console.log('Изображение загружено успешно');
+        // Добавляем класс для анимации
+        imageViewerImg.classList.add('show');
     };
     
     // Устанавливаем информацию о файле
@@ -1902,7 +2176,260 @@ function openImageViewer(fileId, fileName, fileSize) {
     
     // Показываем модальное окно
     const imageViewerModal = new bootstrap.Modal(document.getElementById('imageViewerModal'));
+    
+    // Добавляем обработчик закрытия модального окна
+    document.getElementById('imageViewerModal').addEventListener('hidden.bs.modal', function () {
+        // Сбрасываем состояние галереи
+        currentImageIndex = 0;
+        imageFiles = [];
+        console.log('Модальное окно закрыто, галерея сброшена');
+    });
+    
+    // Добавляем обработчики для навигационных кнопок
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
+    
+    if (prevBtn) {
+        // Удаляем старые обработчики
+        prevBtn.replaceWith(prevBtn.cloneNode(true));
+        const newPrevBtn = document.getElementById('prevImageBtn');
+        newPrevBtn.addEventListener('click', function() {
+            console.log('Кнопка "Предыдущее" нажата');
+            showPreviousImage();
+        });
+        console.log('Обработчик для кнопки "Предыдущее" добавлен');
+    }
+    
+    if (nextBtn) {
+        // Удаляем старые обработчики
+        nextBtn.replaceWith(nextBtn.cloneNode(true));
+        const newNextBtn = document.getElementById('nextImageBtn');
+        newNextBtn.addEventListener('click', function() {
+            console.log('Кнопка "Следующее" нажата');
+            showNextImage();
+        });
+        console.log('Обработчик для кнопки "Следующее" добавлен');
+    }
+    
+    // Добавляем обработчик клавиатуры для галереи
+    const keydownHandler = function(event) {
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            console.log('Нажата клавиша "Стрелка влево"');
+            showPreviousImage();
+        } else if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            console.log('Нажата клавиша "Стрелка вправо"');
+            showNextImage();
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            console.log('Нажата клавиша "Escape"');
+            imageViewerModal.hide();
+        }
+    };
+    
+    document.addEventListener('keydown', keydownHandler);
+    
+    // Удаляем обработчик клавиатуры при закрытии модального окна
+    document.getElementById('imageViewerModal').addEventListener('hidden.bs.modal', function () {
+        document.removeEventListener('keydown', keydownHandler);
+    });
+    
     imageViewerModal.show();
+}
+
+// Функция для получения всех изображений в папке
+function getImageFiles(folderId, currentFileId) {
+    console.log('getImageFiles вызвана с параметрами:', { folderId, currentFileId });
+    
+    // Получаем только изображения из текущего представления (плиточного или табличного)
+    let imageElements;
+    
+    // Проверяем, какое представление активно
+    const tileView = document.getElementById('tileView');
+    const tableView = document.getElementById('tableView');
+    
+    if (tileView && tileView.classList.contains('active')) {
+        // Плиточное представление
+        imageElements = document.querySelectorAll('#tileViewContent .file-item[data-file-id]');
+        console.log('Поиск в плиточном представлении');
+    } else if (tableView && tableView.classList.contains('active')) {
+        // Табличное представление
+        imageElements = document.querySelectorAll('#tableViewContent tbody tr[data-file-id]');
+        console.log('Поиск в табличном представлении');
+    } else {
+        // По умолчанию ищем в плиточном представлении
+        imageElements = document.querySelectorAll('#tileViewContent .file-item[data-file-id]');
+        console.log('Поиск в плиточном представлении (по умолчанию)');
+    }
+    
+    console.log('Найдено элементов с data-file-id в текущем представлении:', imageElements.length);
+    
+    imageFiles = [];
+    
+    imageElements.forEach((element, index) => {
+        // Проверяем, что элемент действительно видим и находится в текущем представлении
+        if (element.offsetParent === null || element.style.display === 'none') {
+            console.log(`Элемент ${index} скрыт, пропускаем`);
+            return;
+        }
+        
+        const fileId = element.getAttribute('data-file-id');
+        const fileName = element.getAttribute('data-file-name');
+        const fileSize = element.getAttribute('data-file-size');
+        const mimeType = element.getAttribute('data-mime-type');
+        
+        console.log(`Элемент ${index}:`, { fileId, fileName, fileSize, mimeType });
+        
+        if (mimeType && mimeType.startsWith('image/')) {
+            // Проверяем, что изображение еще не добавлено
+            const existingImage = imageFiles.find(img => img.id === fileId);
+            if (!existingImage) {
+                imageFiles.push({
+                    id: fileId,
+                    name: fileName,
+                    size: fileSize,
+                    mimeType: mimeType
+                });
+                console.log('Добавлено изображение:', { fileId, fileName, mimeType });
+            } else {
+                console.log('Изображение уже добавлено, пропускаем дубликат:', { fileId, fileName });
+            }
+        }
+    });
+    
+    console.log('Найдено изображений:', imageFiles.length);
+    console.log('Изображения:', imageFiles);
+    
+    // Находим индекс текущего изображения
+    currentImageIndex = imageFiles.findIndex(img => img.id == currentFileId);
+    if (currentImageIndex === -1) {
+        console.log('Текущее изображение не найдено в списке, устанавливаем индекс 0');
+        currentImageIndex = 0;
+    }
+    
+    console.log('Текущий индекс:', currentImageIndex);
+    
+    // Обновляем навигацию
+    updateImageNavigation();
+}
+
+// Функция для обновления навигации
+function updateImageNavigation() {
+    console.log('updateImageNavigation вызвана');
+    console.log('imageFiles.length:', imageFiles.length);
+    console.log('currentImageIndex:', currentImageIndex);
+    
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
+    const counter = document.getElementById('imageCounter');
+    
+    console.log('Найдены элементы:', { prevBtn: !!prevBtn, nextBtn: !!nextBtn, counter: !!counter });
+    
+    if (imageFiles.length <= 1) {
+        console.log('Изображений <= 1, скрываем навигацию');
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counter) counter.style.display = 'none';
+        return;
+    }
+    
+    console.log('Показываем навигацию для', imageFiles.length, 'изображений');
+    if (prevBtn) prevBtn.style.display = 'block';
+    if (nextBtn) nextBtn.style.display = 'block';
+    if (counter) counter.style.display = 'block';
+    
+    // Дополнительная проверка: убеждаемся, что текущий индекс в допустимых пределах
+    if (currentImageIndex < 0) {
+        currentImageIndex = 0;
+        console.log('Исправлен отрицательный индекс на 0');
+    } else if (currentImageIndex >= imageFiles.length) {
+        currentImageIndex = imageFiles.length - 1;
+        console.log('Исправлен индекс за пределами массива на', currentImageIndex);
+    }
+    
+    // Обновляем счетчик
+    if (counter) {
+        counter.textContent = `${currentImageIndex + 1} / ${imageFiles.length}`;
+        console.log('Счетчик обновлен:', counter.textContent);
+    }
+    
+    // Обновляем состояние кнопок
+    if (prevBtn) {
+        prevBtn.disabled = currentImageIndex === 0;
+        console.log('Кнопка "Предыдущее" отключена:', prevBtn.disabled);
+    }
+    if (nextBtn) {
+        nextBtn.disabled = currentImageIndex === imageFiles.length - 1;
+        console.log('Кнопка "Следующее" отключена:', nextBtn.disabled);
+    }
+}
+
+// Функция для перехода к предыдущему изображению
+function showPreviousImage() {
+    console.log('showPreviousImage вызвана');
+    console.log('currentImageIndex:', currentImageIndex);
+    console.log('imageFiles.length:', imageFiles.length);
+    
+    if (currentImageIndex > 0) {
+        currentImageIndex--;
+        console.log('Переход к предыдущему изображению, новый индекс:', currentImageIndex);
+        showImageByIndex(currentImageIndex);
+    } else {
+        console.log('Нельзя перейти к предыдущему изображению - уже первое');
+    }
+}
+
+// Функция для перехода к следующему изображению
+function showNextImage() {
+    console.log('showNextImage вызвана');
+    console.log('currentImageIndex:', currentImageIndex);
+    console.log('imageFiles.length:', imageFiles.length);
+    
+    if (currentImageIndex < imageFiles.length - 1) {
+        currentImageIndex++;
+        console.log('Переход к следующему изображению, новый индекс:', currentImageIndex);
+        showImageByIndex(currentImageIndex);
+    } else {
+        console.log('Нельзя перейти к следующему изображению - уже последнее');
+    }
+}
+
+// Функция для показа изображения по индексу
+function showImageByIndex(index) {
+    console.log('showImageByIndex вызвана с индексом:', index);
+    console.log('imageFiles:', imageFiles);
+    
+    if (index < 0 || index >= imageFiles.length) {
+        console.log('Индекс вне диапазона:', index, 'длина массива:', imageFiles.length);
+        return;
+    }
+    
+    const image = imageFiles[index];
+    console.log('Показываем изображение:', image);
+    
+    const imageViewerImg = document.getElementById('imageViewerImg');
+    const imageFileName = document.getElementById('imageFileName');
+    const imageFileSize = document.getElementById('imageFileSize');
+    const downloadImageBtn = document.getElementById('downloadImageBtn');
+    
+    // Анимация смены изображения
+    imageViewerImg.classList.add('image-fade');
+    
+    setTimeout(() => {
+        // Обновляем изображение
+        imageViewerImg.src = `/view/${image.id}`;
+        imageFileName.textContent = image.name;
+        imageFileSize.textContent = image.size || '';
+        downloadImageBtn.href = `/file/${image.id}`;
+        
+        // Показываем изображение
+        imageViewerImg.classList.remove('image-fade');
+        imageViewerImg.classList.add('show');
+        
+        // Обновляем навигацию
+        updateImageNavigation();
+    }, 150);
 }
 
 // Функция для открытия просмотрщика PDF
