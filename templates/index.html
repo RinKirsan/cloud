@@ -221,8 +221,95 @@
         opacity: 1;
     }
     
-    /* Стили для мобильных устройств */
+    /* Мобильная навигация */
+    .mobile-nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+    
+    body.dark-theme .mobile-nav-toggle {
+        color: var(--text-dark);
+    }
+    
+    /* Мобильная боковая панель */
+    .mobile-sidebar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1050;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    .mobile-sidebar-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 85%;
+        max-width: 350px;
+        height: 100%;
+        background: var(--bg-light);
+        border-right: 1px solid var(--border-light);
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        padding: 1rem;
+    }
+    
+    body.dark-theme .mobile-sidebar-content {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+    }
+    
+    .mobile-sidebar.show .mobile-sidebar-content {
+        transform: translateX(0);
+    }
+    
+    .mobile-sidebar-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 1051;
+    }
+    
+    body.dark-theme .mobile-sidebar-close {
+        color: var(--text-dark);
+    }
+    
+    /* Адаптивные стили для мобильных устройств */
     @media (max-width: 768px) {
+        .mobile-nav-toggle {
+            display: block;
+        }
+        
+        .sidebar {
+            display: none;
+        }
+        
+        .col-md-3 {
+            display: none;
+        }
+        
+        .col-md-9 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
         .image-gallery-nav-btn {
             width: 56px;
             height: 56px;
@@ -234,6 +321,129 @@
             font-size: 0.85rem;
             padding: 8px 14px;
             border-radius: 20px;
+        }
+        
+        /* Мобильная оптимизация для карточек */
+        .item-card {
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .item-card h6 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-card .text-muted {
+            font-size: 0.8rem;
+        }
+        
+        /* Мобильная оптимизация для кнопок */
+        .btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Мобильная оптимизация для заголовков */
+        h4 {
+            font-size: 1.25rem;
+        }
+        
+        h5 {
+            font-size: 1.1rem;
+        }
+        
+        h6 {
+            font-size: 1rem;
+        }
+        
+        /* Мобильная оптимизация для таблиц */
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+        
+        .table th,
+        .table td {
+            padding: 0.5rem 0.25rem;
+        }
+        
+        /* Скрываем некоторые колонки на мобильных */
+        .table th:nth-child(3),
+        .table td:nth-child(3),
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            display: none;
+        }
+        
+        /* Мобильная оптимизация для breadcrumb */
+        .breadcrumb {
+            font-size: 0.875rem;
+        }
+        
+        .breadcrumb-item {
+            margin-right: 0.25rem;
+        }
+        
+        /* Мобильная оптимизация для статистики */
+        .stats-card {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-number {
+            font-size: 1.25rem;
+        }
+        
+        .stats-label {
+            font-size: 0.8rem;
+        }
+        
+        /* Мобильная оптимизация для модальных окон */
+        .modal-dialog {
+            margin: 0.5rem;
+            max-width: calc(100% - 1rem);
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 0.75rem 1rem;
+        }
+        
+        /* Мобильная оптимизация для кнопок переключения режимов */
+        .btn-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-group .btn {
+            border-radius: 0.375rem !important;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Мобильная оптимизация для заголовка */
+        .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem;
+        }
+        
+        .d-flex.align-items-center {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        /* Мобильная оптимизация для кнопки возврата */
+        .btn-back {
+            width: 100%;
+            margin-bottom: 1rem;
         }
     }
     
@@ -249,11 +459,1455 @@
             font-size: 0.8rem;
             padding: 6px 12px;
         }
+        
+        .item-card {
+            padding: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .modal-dialog {
+            margin: 0.25rem;
+            max-width: calc(100% - 0.5rem);
+        }
+        
+        .modal-body {
+            padding: 0.75rem;
+        }
+        
+        .modal-footer {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Скрываем больше колонок на очень маленьких экранах */
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            display: none;
+        }
+        
+        /* Оптимизация для плиточного представления */
+        .col-md-4.col-lg-3 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
+        .item-card {
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    /* Стили для планшетов */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .col-md-3 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .col-md-9 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
+        .sidebar {
+            border: 1px solid var(--border-light);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        body.dark-theme .sidebar {
+            border-color: var(--border-dark);
+        }
+    }
+    
+    /* Дополнительные мобильные улучшения */
+    @media (max-width: 768px) {
+        /* Улучшенная мобильная навигация */
+        .mobile-nav-toggle {
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s ease;
+        }
+        
+        body.dark-theme .mobile-nav-toggle {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+        
+        .mobile-nav-toggle:hover {
+            background: var(--border-light);
+        }
+        
+        body.dark-theme .mobile-nav-toggle:hover {
+            background: var(--border-dark);
+        }
+        
+        /* Улучшенные мобильные кнопки */
+        .btn {
+            min-height: 44px; /* Минимальная высота для удобства касания */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn i {
+            font-size: 1rem;
+        }
+        
+        /* Улучшенная мобильная таблица */
+        .table-responsive {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .table th,
+        .table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        
+        /* Улучшенные мобильные карточки */
+        .item-card {
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .item-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Улучшенная мобильная статистика */
+        .stats-card {
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Улучшенная мобильная боковая панель */
+        .mobile-sidebar-content {
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Улучшенные мобильные модальные окна */
+        .modal-content {
+            border-radius: 1rem;
+            margin: 0.5rem;
+        }
+        
+        .modal-header {
+            border-radius: 1rem 1rem 0 0;
+        }
+        
+        .modal-footer {
+            border-radius: 0 0 1rem 1rem;
+        }
+        
+        /* Улучшенная мобильная галерея изображений */
+        .image-container {
+            min-height: 300px;
+            margin: 0.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        .image-gallery-nav-btn {
+            min-width: 48px;
+            min-height: 48px;
+        }
+        
+        /* Улучшенная мобильная breadcrumb */
+        .breadcrumb {
+            background: var(--bg-light);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        body.dark-theme .breadcrumb {
+            background: var(--bg-dark);
+        }
+        
+        .breadcrumb-item a {
+            color: var(--cyan-glow);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+    }
+    
+    /* Улучшения для очень маленьких экранов */
+    @media (max-width: 480px) {
+        .mobile-sidebar-content {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .mobile-nav-toggle {
+            padding: 0.375rem 0.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .btn {
+            min-height: 40px;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .btn-sm {
+            min-height: 36px;
+            padding: 0.375rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .item-card {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .item-card h6 {
+            font-size: 0.85rem;
+        }
+        
+        .item-card .text-muted {
+            font-size: 0.75rem;
+        }
+        
+        .stats-card {
+            padding: 0.5rem;
+        }
+        
+        .stats-number {
+            font-size: 1.1rem;
+        }
+        
+        .stats-label {
+            font-size: 0.75rem;
+        }
+        
+        .modal-dialog {
+            margin: 0.25rem;
+        }
+        
+        .modal-content {
+            border-radius: 0.75rem;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .modal-body {
+            padding: 0.75rem;
+        }
+        
+        .modal-footer {
+            padding: 0.5rem 0.75rem;
+        }
+    }
+    
+    /* Стили для storage bar */
+    .storage-bar {
+        width: 100%;
+        height: 8px;
+        background-color: var(--border-light);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+    
+    body.dark-theme .storage-bar {
+        background-color: var(--border-dark);
+    }
+    
+    .storage-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    /* Стили для stats-card */
+    .stats-card {
+        background: var(--bg-light);
+        border: 1px solid var(--border-light);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+    
+    body.dark-theme .stats-card {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+    }
+    
+    .stats-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--cyan-glow);
+        margin-bottom: 0.25rem;
+    }
+    
+    .stats-label {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    body.dark-theme .stats-label {
+        color: var(--text-dark);
+    }
+    
+    /* Стили для sidebar */
+    .sidebar {
+        background: var(--bg-light);
+        border: 1px solid var(--border-light);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 1rem;
+    }
+    
+    body.dark-theme .sidebar {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+    }
+    
+    .sidebar h5 {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--cyan-glow);
+    }
+    
+    body.dark-theme .sidebar h5 {
+        color: var(--text-dark);
+    }
+    
+    .sidebar h6 {
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    body.dark-theme .sidebar h6 {
+        color: var(--text-dark);
+    }
+    
+    /* Стили для кнопки возврата */
+    .btn-back {
+        background: var(--bg-light);
+        border: 1px solid var(--border-light);
+        color: var(--text-light);
+        transition: all 0.2s ease;
+    }
+    
+    body.dark-theme .btn-back {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+        color: var(--text-dark);
+    }
+    
+    .btn-back:hover {
+        background: var(--border-light);
+        border-color: var(--cyan-glow);
+        color: var(--text-light);
+        transform: translateX(-2px);
+    }
+    
+    body.dark-theme .btn-back:hover {
+        background: var(--border-dark);
+        border-color: var(--cyan-glow);
+        color: var(--text-dark);
+    }
+    
+    /* Стили для кнопок переключения режимов просмотра */
+    .btn-view-toggle {
+        background: transparent;
+        border: 1px solid var(--border-light);
+        color: var(--text-light);
+        transition: all 0.2s ease;
+        min-width: 80px;
+    }
+    
+    body.dark-theme .btn-view-toggle {
+        border-color: var(--border-dark);
+        color: var(--text-dark);
+    }
+    
+    .btn-view-toggle:hover {
+        background: var(--border-light);
+        border-color: var(--cyan-glow);
+        color: var(--text-light);
+    }
+    
+    body.dark-theme .btn-view-toggle:hover {
+        background: var(--border-dark);
+        border-color: var(--cyan-glow);
+        color: var(--text-dark);
+    }
+    
+    .btn-view-toggle.active {
+        background: var(--cyan-glow);
+        border-color: var(--cyan-glow);
+        color: var(--bg-dark);
+        font-weight: 600;
+    }
+    
+    /* Стили для breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .breadcrumb-item {
+        color: var(--text-light);
+    }
+    
+    body.dark-theme .breadcrumb-item {
+        color: var(--text-dark);
+    }
+    
+    .breadcrumb-item a {
+        color: var(--cyan-glow);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .breadcrumb-item a:hover {
+        color: var(--pink-glow);
+        text-decoration: underline;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+    
+    body.dark-theme .breadcrumb-item.active {
+        color: var(--text-dark);
+    }
+    
+    /* Стили для карточек элементов */
+    .item-card {
+        border: 1px solid var(--border-light);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        background: var(--bg-light);
+        transition: all 0.2s ease;
+        height: 100%;
+        cursor: pointer;
+        width: 100%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    body.dark-theme .item-card {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .item-card:hover {
+        border-color: var(--cyan-glow);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    body.dark-theme .item-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    .item-card:active {
+        transform: translateY(0) scale(0.98);
+        transition: all 0.1s ease;
+    }
+    
+    /* Стили для текста в плитках */
+    .item-card h6 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        margin-bottom: 0.25rem;
+        width: 100%;
+        min-width: 0;
+        color: var(--text-light);
+        font-weight: 600;
+    }
+    
+    body.dark-theme .item-card h6 {
+        color: var(--text-dark);
+    }
+    
+    .item-card .text-muted {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        font-size: 0.875rem;
+        width: 100%;
+        min-width: 0;
+        color: var(--inactive);
+    }
+    
+    .item-card .flex-grow-1 {
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .folder-item {
+        border-left: 4px solid var(--golden-glow);
+    }
+    
+    .file-item {
+        border-left: 4px solid var(--cyan-glow);
+    }
+    
+    /* Стили для табличного представления */
+    .table th {
+        background-color: var(--bg-light);
+        border-top: none;
+        font-weight: 600;
+        color: var(--text-light);
+        border-bottom: 2px solid var(--cyan-glow);
+        padding: 0.75rem 0.5rem;
+    }
+    
+    body.dark-theme .table th {
+        background-color: var(--bg-dark);
+        color: var(--text-dark);
+        border-bottom-color: var(--cyan-glow);
+    }
+    
+    .table td {
+        vertical-align: middle;
+        color: var(--text-light);
+        padding: 0.75rem 0.5rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    body.dark-theme .table td {
+        color: var(--text-dark);
+        border-bottom-color: var(--border-dark);
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(93, 230, 225, 0.1);
+    }
+    
+    body.dark-theme .table tbody tr:hover {
+        background-color: rgba(93, 230, 225, 0.2);
+    }
+    
+    /* Стили для badge в таблицах */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+        border-radius: 0.375rem;
+    }
+    
+    .badge.bg-success {
+        background-color: var(--cyan-glow) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    .badge.bg-warning {
+        background-color: var(--golden-glow) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    .badge.bg-danger {
+        background-color: var(--pink-glow) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    .badge.bg-info {
+        background-color: var(--cyan-glow) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    .badge.bg-primary {
+        background-color: var(--cyan-glow) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    .badge.bg-secondary {
+        background-color: var(--inactive) !important;
+        color: var(--bg-dark) !important;
+    }
+    
+    /* Стили для контекстного меню */
+    .context-menu {
+        position: fixed;
+        background: var(--bg-light);
+        border: 1px solid var(--border-light);
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        min-width: 200px;
+        padding: 0.5rem 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    body.dark-theme .context-menu {
+        background: var(--bg-dark);
+        border-color: var(--border-dark);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .context-menu-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    body.dark-theme .context-menu-item {
+        color: var(--text-dark);
+    }
+    
+    .context-menu-item:hover {
+        background-color: var(--cyan-glow);
+        color: var(--bg-dark);
+        transform: translateX(4px);
+    }
+    
+    .context-menu-item:active {
+        transform: translateX(4px) scale(0.98);
+    }
+    
+    .context-menu-divider {
+        height: 1px;
+        background-color: var(--border-light);
+        margin: 0.5rem 0;
+    }
+    
+    body.dark-theme .context-menu-divider {
+        background-color: var(--border-dark);
+    }
+    
+    .context-menu-item.text-danger:hover {
+        background-color: var(--pink-glow);
+        color: var(--bg-dark);
+    }
+    
+    .context-menu-item.text-warning:hover {
+        background-color: var(--golden-glow);
+        color: var(--bg-dark);
+    }
+    
+    /* Стили для модальных окон */
+    .modal-content {
+        background: var(--bg-light);
+        color: var(--text-light);
+        border: 1px solid var(--border-light);
+        border-radius: 1rem;
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.dark-theme .modal-content {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+        border-color: var(--border-dark);
+        box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid var(--border-light);
+        border-radius: 1rem 1rem 0 0;
+        background: linear-gradient(135deg, var(--bg-light), var(--border-light));
+    }
+    
+    body.dark-theme .modal-header {
+        border-bottom-color: var(--border-dark);
+        background: linear-gradient(135deg, var(--bg-dark), var(--border-dark));
+    }
+    
+    .modal-footer {
+        border-top: 1px solid var(--border-light);
+        border-radius: 0 0 1rem 1rem;
+        background: linear-gradient(135deg, var(--border-light), var(--bg-light));
+    }
+    
+    body.dark-theme .modal-footer {
+        border-top-color: var(--border-dark);
+        background: linear-gradient(135deg, var(--border-dark), var(--bg-dark));
+    }
+    
+    .modal-title {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+    
+    body.dark-theme .modal-title {
+        color: var(--text-dark);
+    }
+    
+    .btn-close {
+        filter: invert(1);
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+    }
+    
+    body.dark-theme .btn-close {
+        filter: invert(0);
+    }
+    
+    /* Стили для алертов */
+    .alert {
+        border: 1px solid var(--border-light);
+        border-radius: 0.75rem;
+        background: var(--bg-light);
+        color: var(--text-light);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    body.dark-theme .alert {
+        border-color: var(--border-dark);
+        background: var(--bg-dark);
+        color: var(--text-dark);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .alert-warning {
+        border-left: 4px solid var(--golden-glow);
+        background: linear-gradient(135deg, rgba(255, 230, 133, 0.1), rgba(255, 230, 133, 0.05));
+    }
+    
+    .alert-danger {
+        border-left: 4px solid var(--pink-glow);
+        background: linear-gradient(135deg, rgba(255, 119, 200, 0.1), rgba(255, 119, 200, 0.05));
+    }
+    
+    .alert-info {
+        border-left: 4px solid var(--cyan-glow);
+        background: linear-gradient(135deg, rgba(93, 230, 225, 0.1), rgba(93, 230, 225, 0.05));
+    }
+    
+    /* Улучшенная мобильная оптимизация для touch устройств */
+    @media (hover: none) and (pointer: coarse) {
+        .item-card:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .item-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:hover {
+            transform: none;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .context-menu-item:hover {
+            transform: none;
+            background-color: var(--cyan-glow);
+            color: var(--bg-dark);
+        }
+        
+        .context-menu-item:active {
+            transform: scale(0.98);
+        }
+    }
+    
+    /* Улучшения для устройств с высоким DPI */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .item-card {
+            border-width: 0.5px;
+        }
+        
+        .table th,
+        .table td {
+            border-width: 0.5px;
+        }
+        
+        .modal-content {
+            border-width: 0.5px;
+        }
+    }
+    
+    /* Дополнительные улучшения для мобильных устройств */
+    @media (max-width: 768px) {
+        /* Улучшенная мобильная навигация */
+        .mobile-nav-toggle {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-nav-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(93, 230, 225, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .mobile-nav-toggle:active::before {
+            left: 100%;
+        }
+        
+        /* Улучшенная мобильная боковая панель */
+        .mobile-sidebar {
+            transition: opacity 0.3s ease;
+        }
+        
+        .mobile-sidebar.show {
+            opacity: 1;
+        }
+        
+        .mobile-sidebar:not(.show) {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Улучшенные мобильные кнопки действий */
+        .d-flex.align-items-center .btn {
+            flex: 1;
+            margin: 0.25rem 0;
+        }
+        
+        /* Улучшенная мобильная таблица */
+        .table-responsive {
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+        }
+        
+        body.dark-theme .table-responsive {
+            border-color: var(--border-dark);
+        }
+        
+        /* Улучшенная мобильная статистика */
+        .stats-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyan-glow), var(--pink-glow));
+        }
+        
+        /* Улучшенная мобильная breadcrumb */
+        .breadcrumb {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .breadcrumb-item {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Улучшенные мобильные модальные окна */
+        .modal-dialog {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Улучшенная мобильная галерея */
+        .image-container {
+            position: relative;
+        }
+        
+        .image-gallery-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        
+        .image-gallery-nav-btn:first-child {
+            left: 0.5rem;
+        }
+        
+        .image-gallery-nav-btn:last-child {
+            right: 0.5rem;
+        }
+        
+        /* Улучшенная мобильная навигация для очень маленьких экранов */
+        .mobile-nav-toggle {
+            min-width: 44px;
+            min-height: 44px;
+        }
+        
+        /* Улучшенная мобильная боковая панель для очень маленьких экранов */
+        .mobile-sidebar-content {
+            padding: 0.75rem;
+        }
+        
+        /* Улучшенные мобильные кнопки для очень маленьких экранов */
+        .btn {
+            min-width: 44px;
+            min-height: 44px;
+        }
+        
+        /* Улучшенная мобильная таблица для очень маленьких экранов */
+        .table th,
+        .table td {
+            padding: 0.375rem 0.25rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Улучшенная мобильная статистика для очень маленьких экранов */
+        .stats-card {
+            padding: 0.5rem;
+        }
+        
+        .stats-number {
+            font-size: 1.1rem;
+        }
+        
+        .stats-label {
+            font-size: 0.7rem;
+        }
+        
+        /* Улучшенная мобильная breadcrumb для очень маленьких экранов */
+        .breadcrumb {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Улучшенные мобильные модальные окна для очень маленьких экранов */
+        .modal-dialog {
+            margin: 0.25rem;
+            max-width: calc(100% - 0.5rem);
+        }
+        
+        .modal-content {
+            border-radius: 0.75rem;
+        }
+        
+        .modal-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .modal-body {
+            padding: 0.75rem;
+        }
+        
+        .modal-footer {
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Улучшенная мобильная галерея для очень маленьких экранов */
+        .image-container {
+            min-height: 250px;
+            margin: 0.25rem;
+        }
+        
+        .image-gallery-nav-btn {
+            min-width: 44px;
+            min-height: 44px;
+            font-size: 1rem;
+        }
+        
+        .image-counter {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+    }
+    
+    /* Улучшения для планшетов */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .mobile-nav-toggle {
+            display: none;
+        }
+        
+        .sidebar {
+            position: static;
+            margin-bottom: 1rem;
+        }
+        
+        .col-md-3 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
+        .col-md-9 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
+        .item-card {
+            margin-bottom: 1rem;
+        }
+        
+        .table-responsive {
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        body.dark-theme .table-responsive {
+            border-color: var(--border-dark);
+        }
+    }
+    
+    /* Дополнительные улучшения для всех устройств */
+    .main-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Улучшения для accessibility */
+    .btn:focus,
+    .item-card:focus,
+    .context-menu-item:focus {
+        outline: 2px solid var(--cyan-glow);
+        outline-offset: 2px;
+    }
+    
+    /* Улучшения для печати */
+    @media print {
+        .mobile-nav-toggle,
+        .mobile-sidebar,
+        .sidebar,
+        .btn-group,
+        .context-menu {
+            display: none !important;
+        }
+        
+        .col-md-9 {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+        
+        .item-card {
+            break-inside: avoid;
+            border: 1px solid #000;
+            margin-bottom: 1rem;
+        }
+        
+        .table {
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            border: 1px solid #000;
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Улучшения для loading states */
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid var(--cyan-glow);
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Улучшения для empty states */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--inactive);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h5 {
+        margin-bottom: 1rem;
+        color: var(--text-light);
+    }
+    
+    body.dark-theme .empty-state h5 {
+        color: var(--text-dark);
+    }
+    
+    .empty-state p {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Улучшения для drag and drop */
+    .drag-over {
+        border-color: var(--cyan-glow) !important;
+        background-color: rgba(93, 230, 225, 0.1) !important;
+        transform: scale(1.02);
+        box-shadow: 0 8px 32px rgba(93, 230, 225, 0.2);
+    }
+    
+    .dragging {
+        opacity: 0.5;
+        transform: rotate(5deg) scale(0.95);
+        z-index: 1000;
+    }
+    
+    /* Улучшения для focus states */
+    .item-card:focus-within {
+        border-color: var(--cyan-glow);
+        box-shadow: 0 0 0 3px rgba(93, 230, 225, 0.3);
+    }
+    
+    /* Улучшения для hover states на устройствах с поддержкой hover */
+    @media (hover: hover) {
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .context-menu-item:hover {
+            transform: translateX(4px);
+        }
+    }
+    
+    /* Улучшения для анимаций */
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .slide-in-left {
+        animation: slideInLeft 0.3s ease-out;
+    }
+    
+    @keyframes slideInLeft {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .slide-in-right {
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* Улучшения для transitions */
+    .smooth-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Улучшения для responsive images */
+    .responsive-image {
+        max-width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Улучшения для text truncation */
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .text-truncate-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Улучшения для scrollbars */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--border-light);
+        border-radius: 4px;
+    }
+    
+    body.dark-theme ::-webkit-scrollbar-track {
+        background: var(--border-dark);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--cyan-glow);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--pink-glow);
+    }
+    
+    /* Улучшения для selection */
+    ::selection {
+        background: var(--cyan-glow);
+        color: var(--bg-dark);
+    }
+    
+    ::-moz-selection {
+        background: var(--cyan-glow);
+        color: var(--bg-dark);
+    }
+    
+    /* Финальные улучшения для мобильных устройств */
+    @media (max-width: 768px) {
+        /* Улучшенная мобильная навигация */
+        .mobile-nav-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1060;
+            background: var(--bg-light);
+            border: 2px solid var(--cyan-glow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(93, 230, 225, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme .mobile-nav-toggle {
+            background: var(--bg-dark);
+        }
+        
+        .mobile-nav-toggle:active {
+            transform: scale(0.9);
+            box-shadow: 0 2px 8px rgba(93, 230, 225, 0.2);
+        }
+        
+        /* Улучшенная мобильная боковая панель */
+        .mobile-sidebar {
+            z-index: 1055;
+        }
+        
+        .mobile-sidebar-content {
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Улучшенная мобильная статистика */
+        .stats-card {
+            background: linear-gradient(135deg, var(--bg-light), var(--border-light));
+            border: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .stats-card {
+            background: linear-gradient(135deg, var(--bg-dark), var(--border-dark));
+        }
+        
+        /* Улучшенная мобильная таблица */
+        .table-responsive {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Улучшенная мобильная breadcrumb */
+        .breadcrumb {
+            background: linear-gradient(135deg, var(--bg-light), var(--border-light));
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        body.dark-theme .breadcrumb {
+            background: linear-gradient(135deg, var(--bg-dark), var(--border-dark));
+            border-color: var(--border-dark);
+        }
+        
+        /* Улучшенные мобильные кнопки */
+        .btn {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--pink-glow));
+            border-color: transparent;
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+        }
+        
+        .btn-outline-primary:active {
+            background: var(--cyan-glow);
+            color: var(--bg-dark);
+        }
     }
 </style>
+
+<!-- Мобильная навигация -->
+<div class="d-md-none mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="mobile-nav-toggle" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h5 class="mb-0">Vortex Cloud</h5>
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-upload"></i>
+            </a>
+            <a href="{{ url_for('create_folder') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-folder-plus"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Мобильная боковая панель -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="mobile-sidebar-content">
+        <button class="mobile-sidebar-close" onclick="toggleMobileSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="mb-4">
+            <h5 class="mb-3">
+                <i class="fas fa-user me-2"></i>{{ current_user.username }}
+            </h5>
+            
+            <!-- Storage Usage -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted">Использовано хранилища</span>
+                    <span class="small text-muted">{{ current_user.get_storage_usage_mb() }} / {{ current_user.get_storage_limit_mb() }} МБ</span>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-fill" style="width: {{ current_user.get_storage_percentage() }}%"></div>
+                </div>
+                <div class="text-center mt-2">
+                    <span class="badge bg-{{ 'success' if current_user.get_storage_percentage() < 80 else 'warning' if current_user.get_storage_percentage() < 95 else 'danger' }}">
+                        {{ current_user.get_storage_percentage() }}%
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="mb-4">
+                <h6 class="mb-3">Быстрые действия</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-2"></i>Загрузить файл
+                    </a>
+                    <a href="{{ url_for('create_folder') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-folder-plus me-2"></i>Создать папку
+                    </a>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-search me-2"></i>Поиск
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div>
+                <h6 class="mb-3">Статистика</h6>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ folders|length }}</div>
+                            <div class="stats-label">Папки</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number">{{ files|length }}</div>
+                            <div class="stats-label">Файлы</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <!-- Sidebar -->
-    <div class="col-md-3">
+    <div class="col-md-3 d-none d-md-block">
         <div class="sidebar">
             <h5 class="mb-3">
                 <i class="fas fa-user me-2"></i>{{ current_user.username }}
@@ -1287,6 +2941,45 @@ body.dark-theme .text-info {
 console.log('=== SCRIPT LOADING ===');
 console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
 console.log('jQuery available:', typeof $ !== 'undefined');
+
+// Функция для управления мобильной боковой панелью
+function toggleMobileSidebar() {
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    if (mobileSidebar) {
+        mobileSidebar.classList.toggle('show');
+        
+        // Блокируем прокрутку основного контента при открытой панели
+        if (mobileSidebar.classList.contains('show')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Закрытие мобильной панели при клике вне её
+document.addEventListener('click', function(event) {
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    
+    if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+        if (!mobileSidebar.contains(event.target) && !mobileNavToggle.contains(event.target)) {
+            mobileSidebar.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+});
+
+// Закрытие мобильной панели при нажатии Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        if (mobileSidebar && mobileSidebar.classList.contains('show')) {
+            mobileSidebar.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+});
 
 // Функция для переключения режима отображения
 function setViewMode(mode) {
